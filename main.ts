@@ -7,6 +7,13 @@ import { unified } from "unified";
 import remarkGfm from "remark-gfm";
 import rehypeStringify from "rehype-stringify";
 import remarkRehype from "remark-rehype";
+import remarkFrontmatter from "remark-frontmatter";
+import { remarkMermaid } from "remark-mermaidjs";
+import remarkMath from "remark-math";
+import remarkWikiLink from "remark-wiki-link";
+import remarkCite from "@benrbray/remark-cite";
+import remarkNumberedFootnoteLabels from "remark-numbered-footnote-labels";
+
 
 // Remember to rename these classes and interfaces!
 
@@ -66,10 +73,17 @@ export default class ObsidianExport extends Plugin {
 				if (err) console.error(err);
 				const parsedData = String(await unified()
 					.use(remarkParse)
+					.use(remarkFrontmatter)
 					.use(remarkGfm)
+					.use(remarkMath)
+					.use(remarkMermaid)
+					.use(remarkNumberedFootnoteLabels)
+					.use(remarkWikiLink, { aliasDivider: "|" })
+					.use(remarkCite)
 					.use(remarkRehype)
 					.use(rehypeStringify)
-					.process(data))
+					.process(data)
+				)
 
 				console.log({ data, parsedData })
 
