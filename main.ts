@@ -1,6 +1,7 @@
 import { App, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import { getAPI } from "obsidian-dataview";
 import { createPathToSlug, getSlug } from "./utils";
+import * as fs from "fs";
 
 // Remember to rename these classes and interfaces!
 
@@ -50,9 +51,21 @@ export default class ObsidianExport extends Plugin {
 
 		const outPath = this.app.vault?.adapter?.basePath + "/" + this.settings.outPath + "/"
 
-		notes?.values?.forEach(note => {
+		notes?.values?.forEach(async note => {
 			const slug = getSlug(note);
-			createPathToSlug(outPath, slug).then(console.log);
+			const inFilePath = (this.app.vault?.adapter?.basePath + "/" + note?.file?.path);
+			const outFilePath = await createPathToSlug(outPath, slug);
+
+			console.log(inFilePath, outFilePath)
+			fs.readFile(inFilePath, "utf-8", (err, data) => {
+				if (err) console.error(err);
+				console.log({ data })
+
+				if (data) {
+					fs.writeFile(outFilePath, data, err => console.error(err))
+				}
+
+			})
 
 		});
 	}

@@ -37,7 +37,6 @@ export const createPathToSlug = async (rootDir, slug) => {
 	const parentDir = rootDir
 		+ path.slice(0, path?.length - 1).join("/");
 
-	console.log(rootDir, slug, parentDir)
-
-	return fs.mkdir(parentDir, { recursive: true }, err => console.error(err))
+	await fs.mkdir(parentDir, { recursive: true }, console.error)
+	return `${parentDir}${parentDir[parentDir?.length - 1] === "/" ? "" : "/"}${path[path?.length - 1]}.html`
 }
