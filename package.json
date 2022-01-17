@@ -23,7 +23,13 @@
 	},
 	"dependencies": {
 		"@benrbray/remark-cite": "^1.1.0",
+		"@types/lodash": "^4.14.178",
 		"lodash": "^4.17.21",
+		"mdast-util-to-markdown": "^1.2.6",
+		"micromark-util-chunked": "^1.0.0",
+		"micromark-util-classify-character": "^1.0.0",
+		"micromark-util-resolve-all": "^1.0.0",
+		"micromark-util-symbol": "^1.0.1",
 		"rehype-raw": "^6.1.1",
 		"rehype-stringify": "^9.0.2",
 		"remark-frontmatter": "^4.0.1",
@@ -34,6 +40,7 @@
 		"remark-parse": "^10.0.1",
 		"remark-rehype": "^10.1.0",
 		"remark-wiki-link": "^1.0.4",
-		"unified": "^10.1.1"
+		"unified": "^10.1.1",
+		"unist-util-visit": "^4.1.0"
 	}
 }

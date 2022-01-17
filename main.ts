@@ -1,4 +1,4 @@
-import { App, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import { getAPI } from "obsidian-dataview";
 import { createPathToSlug, getSlug } from "./utils";
 import * as fs from "fs";
@@ -14,6 +14,7 @@ import remarkWikiLink from "remark-wiki-link";
 // import { citePlugin as remarkCite } from "@benrbray/remark-cite";
 import remarkNumberedFootnoteLabels from "remark-numbered-footnote-labels";
 import rehypeRaw from "rehype-raw";
+import remarkRemoveObsidianComments from "./src/comments/remarkRemoveObsidianComments";
 
 
 // Remember to rename these classes and interfaces!
@@ -34,16 +35,13 @@ export default class ObsidianExport extends Plugin {
 		await this.loadSettings();
 
 		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
+		const ribbonIconEl = this.addRibbonIcon('paper-plane', 'Export', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
+			this.exportMd()
 		});
 		// Perform additional things with the ribbon
-		ribbonIconEl.addClass('my-plugin-ribbon-class');
+		ribbonIconEl.addClass('obsidian-export');
 
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status Bar Text');
 
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
@@ -69,11 +67,11 @@ export default class ObsidianExport extends Plugin {
 			const inFilePath = (this.app.vault?.adapter?.basePath + "/" + note?.file?.path);
 			const outFilePath = await createPathToSlug(outPath, slug);
 
-			console.log(inFilePath, outFilePath)
 			fs.readFile(inFilePath, "utf-8", async (err, data) => {
 				if (err) console.error(err);
 				const parsedData = String(await unified()
 					.use(remarkParse)
+					.use(remarkRemoveObsidianComments)
 					.use(remarkFrontmatter)
 					.use(remarkGfm)
 					.use(remarkMath)
@@ -87,10 +85,12 @@ export default class ObsidianExport extends Plugin {
 					.process(data)
 				)
 
-				console.log({ data, parsedData })
+				// console.log({ data, parsedData })
 
 				if (data) {
-					fs.writeFile(outFilePath, parsedData, err => console.error(err))
+					fs.writeFile(outFilePath, parsedData, (err) => {
+						if (err) console.error(err)
+					})
 				}
 
 			})

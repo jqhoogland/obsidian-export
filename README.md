@@ -27,8 +27,9 @@ This uses [remark](https://github.com/remarkjs/remark) under the hood to do the 
 
 ---
 
-## Timeline
+## Stuff to do
 
+- [ ] Add support for tags
 - [ ] Remove links to unpublished pages
 - [ ] Include slugs in unpublished pages
 - [ ] Add support for citations (by reading obsidian-cite settings).
@@ -49,3 +50,4 @@ This uses [remark](https://github.com/remarkjs/remark) under the hood to do the 
 - [ ] Check highlighting
 - [ ] Add support for page templates/layouts
 - [ ] Add support for graph views
+- [ ] Publish a separate `remark-ofm` (Remark Obsidian Flavored Markdown) plugin
