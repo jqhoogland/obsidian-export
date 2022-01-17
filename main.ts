@@ -2,6 +2,11 @@ import { App, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import { getAPI } from "obsidian-dataview";
 import { createPathToSlug, getSlug } from "./utils";
 import * as fs from "fs";
+import remarkParse from "remark-parse";
+import { unified } from "unified";
+import remarkGfm from "remark-gfm";
+import rehypeStringify from "rehype-stringify";
+import remarkRehype from "remark-rehype";
 
 // Remember to rename these classes and interfaces!
 
@@ -57,12 +62,19 @@ export default class ObsidianExport extends Plugin {
 			const outFilePath = await createPathToSlug(outPath, slug);
 
 			console.log(inFilePath, outFilePath)
-			fs.readFile(inFilePath, "utf-8", (err, data) => {
+			fs.readFile(inFilePath, "utf-8", async (err, data) => {
 				if (err) console.error(err);
-				console.log({ data })
+				const parsedData = String(await unified()
+					.use(remarkParse)
+					.use(remarkGfm)
+					.use(remarkRehype)
+					.use(rehypeStringify)
+					.process(data))
+
+				console.log({ data, parsedData })
 
 				if (data) {
-					fs.writeFile(outFilePath, data, err => console.error(err))
+					fs.writeFile(outFilePath, parsedData, err => console.error(err))
 				}
 
 			})
