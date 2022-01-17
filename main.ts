@@ -11,8 +11,9 @@ import remarkFrontmatter from "remark-frontmatter";
 import { remarkMermaid } from "remark-mermaidjs";
 import remarkMath from "remark-math";
 import remarkWikiLink from "remark-wiki-link";
-import remarkCite from "@benrbray/remark-cite";
+// import { citePlugin as remarkCite } from "@benrbray/remark-cite";
 import remarkNumberedFootnoteLabels from "remark-numbered-footnote-labels";
+import rehypeRaw from "rehype-raw";
 
 
 // Remember to rename these classes and interfaces!
@@ -79,9 +80,10 @@ export default class ObsidianExport extends Plugin {
 					.use(remarkMermaid)
 					.use(remarkNumberedFootnoteLabels)
 					.use(remarkWikiLink, { aliasDivider: "|" })
-					.use(remarkCite)
-					.use(remarkRehype)
-					.use(rehypeStringify)
+					// .use(remarkCite)
+					.use(remarkRehype, { allowDangerousHtml: true })
+					.use(rehypeRaw)
+					.use(rehypeStringify,)
 					.process(data)
 				)
 

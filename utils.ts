@@ -18,6 +18,8 @@ export const getSlug = (f) => {
 	if (f?.slug && Array.isArray(f?.slug) && f?.slug?.length > 0) {
 		return f?.slug[0]
 	} else if (f?.slug && typeof f?.slug === "string") {
+		if (f?.slug[f?.slug?.length] === "/") return f?.slug + "index"
+
 		return f?.slug
 	} else {
 		return _.kebabCase(f?.file?.name)

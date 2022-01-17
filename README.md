@@ -28,7 +28,24 @@ This uses [remark](https://github.com/remarkjs/remark) under the hood to do the 
 ---
 
 ## Timeline
-- [ ] Remove links to unpublished pages 
-- [ ] Include slugs in unpublished pages  
+
+- [ ] Remove links to unpublished pages
+- [ ] Include slugs in unpublished pages
 - [ ] Add support for citations (by reading obsidian-cite settings).
 - [ ] Add support for obsidian-markdown-style comments `%% ... %%`
+- [ ] More powerful wikilinks
+	- [ ] Add support for linking to specific headings. `[[Page#Heading 1]]`
+	- [ ] Add support for linking to specific blocks. `[[Page^123456]]`
+- [ ] Add support for embed links `![[...]]`
+	- [ ] Add support for media (& resizing `![[Image|500]]`).
+	- [ ] Add support for embedded pages
+	- [ ] Add support for pdfs (and specific page links)
+- [ ] Run custom code through local plugins (e.g, `admonition`, `dataview`, and `dataviewjs` blocks).
+	- [ ] Inline code
+	- [ ] Code blocks
+- [ ] Add support for markdown within html elements.
+- [ ] Add support for css snippets
+- [ ] Add support for theme
+- [ ] Check highlighting
+- [ ] Add support for page templates/layouts
+- [ ] Add support for graph views

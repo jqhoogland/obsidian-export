@@ -24,6 +24,7 @@
 	"dependencies": {
 		"@benrbray/remark-cite": "^1.1.0",
 		"lodash": "^4.17.21",
+		"rehype-raw": "^6.1.1",
 		"rehype-stringify": "^9.0.2",
 		"remark-frontmatter": "^4.0.1",
 		"remark-gfm": "^3.0.1",
