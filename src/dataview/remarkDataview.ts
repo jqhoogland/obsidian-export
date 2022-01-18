@@ -59,42 +59,24 @@ class Cards {
 
 const addCodeblockProcessors = dv => {
 	dv.el = (tag, text) => {
-		return `<${tag}>${text}</${tag}>`
+		return u(tag, { hName: tag }, text)
 	}
 	dv.header = (level, text) => {
-		return `<h${level}>${text}</h${level}>`
+		return u(`h${1}`, text)
 	}
 	dv.span = (text) => {
-		return `<span>${text}</span>`
+		return u("span", text)
 	}
 	dv.paragraph = (text) => {
-		return `<p>${text}</p>`
+		return u("p", text)
 	}
 	// dv.view = (path, input) => {}
 	dv.list = (elements) => {
-		return `
-        <ul>
-          ${elements.map(el => `<li>${el}</li>`)}
-        </ul>
-        `
+		return u("list", elements.map(el => u("listItem", el)))
 	}
 	// dv.taskList = (tasks, groupByFile) => {}
 	dv.table = (headers, elements) => {
-		return `
-		<table>
-		  <thead>
-		    <tr>
-		      ${headers.map(header => `<th>${header}</th>`)}
-            </tr>
-          </thead>
-          ${elements.map(el => `
-		    <tr>
-		      ${el.map(cell => `<td>${cell}</td>`)}
-            </tr>
-          `)
-		}
-		</table>
-		`
+		return u("table", [u("tHead", u("tr", headers.map(header => u("td", header)))), elements.map(row => u("tr", row.map(cell => u("td", cell))))])
 	}
 	return dv
 }
@@ -112,7 +94,7 @@ const remarkDataview = (options = {}) => (tree) => {
 	visit(tree, { type: "code", lang: "dataviewjs" }, (node, index, parent) => {
 		const { dv: _dv, page } = options
 		const customJS = { Cards }
-		console.log("OG", node, parent, index)
+		console.log("BEFORE", node, parent, index)
 
 
 		// dv.component = document.createElement("div")
@@ -121,8 +103,14 @@ const remarkDataview = (options = {}) => (tree) => {
 		console.log({ dv, page, customJS })
 		const res = window.eval(node.value)
 
-		console.log("AFTER", res)
-		if (res) node = u("root", root)
+		if (res) {
+			node.type = res.type
+			node.value = res?.value
+			node.children = res?.children
+			delete node.lang
+		}
+
+		console.log("AFTER", res, node)
 	})
 
 	// Nothing to do. No need to start puppeteer in this case.
