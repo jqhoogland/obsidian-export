@@ -1,8 +1,11 @@
 import { visit } from "unist-util-visit";
 import { Parent } from "mdast";
 import { DataviewApi } from "obsidian-dataview/lib/api/plugin-api";
-import { root } from "mdast-builder";
+import { heading, list, listItem, paragraph, table, tableCell, tableRow } from "mdast-builder";
 import { u } from "unist-builder";
+import { unified } from "unified";
+import rehypeParse from "rehype-parse";
+import { map } from "unist-util-map";
 
 class Cards {
 	getParentName(f) {
@@ -52,31 +55,52 @@ class Cards {
 			.where((f) => !!f?.published == !!(filters?.published ?? true) && f?.type === type && this.matchFilters(f, filters))
 			.sort(f => order === "date" ? -this.dateToInt(f?.date?.path) : order === "order" ? f?.order : f?.file?.name)
 			.map(f => this.render(dv, f));
-		return dv.list([`<div class="grid gap-2 grid-cols-1">${cards.join("")}</div>`])
+		return dv.list(cards)
 
 	}
 }
 
+const processor = unified().use(rehypeParse, { fragment: true }) // .use(rehypeRemark)
+
 const addCodeblockProcessors = dv => {
+	const clean = value => {
+		if (typeof value === "string") {
+			const _res = processor.parse(`<span>${value}</span>`)
+			const res = map(_res, (node) => {
+				console.log("MAPPING", node)
+				return Object.assign({}, node, {
+					data: {
+						...node?.data,
+						hName: node.tagName,
+						hProperties: node.properties
+					}
+				})
+			})
+			console.log(value, _res, res)
+			return res.children ?? u("text", value)
+		}
+		return value
+	}
+
 	dv.el = (tag, text) => {
-		return u(tag, { hName: tag }, text)
+		return u("p", { hName: tag }, text)
 	}
 	dv.header = (level, text) => {
-		return u(`h${1}`, text)
+		return heading(level, text)
 	}
 	dv.span = (text) => {
-		return u("span", text)
+		return paragraph(text)
 	}
 	dv.paragraph = (text) => {
-		return u("p", text)
+		return paragraph(text)
 	}
 	// dv.view = (path, input) => {}
 	dv.list = (elements) => {
-		return u("list", elements.map(el => u("listItem", el)))
+		return list("unordered", elements.map(el => listItem(clean(el))))
 	}
 	// dv.taskList = (tasks, groupByFile) => {}
 	dv.table = (headers, elements) => {
-		return u("table", [u("tHead", u("tr", headers.map(header => u("td", header)))), elements.map(row => u("tr", row.map(cell => u("td", cell))))])
+		return table("left", [tableRow(headers.map(header => tableCell(clean(header)))), elements.map(row => tableRow(row.map(cell => tableCell(clean(cell)))))])
 	}
 	return dv
 }
@@ -105,12 +129,13 @@ const remarkDataview = (options = {}) => (tree) => {
 
 		if (res) {
 			node.type = res.type
-			node.value = res?.value
 			node.children = res?.children
+			delete node.value
 			delete node.lang
 		}
 
 		console.log("AFTER", res, node)
+		return node
 	})
 
 	// Nothing to do. No need to start puppeteer in this case.

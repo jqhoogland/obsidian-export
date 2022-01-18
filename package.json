@@ -33,7 +33,9 @@
 		"micromark-util-classify-character": "^1.0.0",
 		"micromark-util-resolve-all": "^1.0.0",
 		"micromark-util-symbol": "^1.0.1",
+		"rehype-parse": "^8.0.3",
 		"rehype-raw": "^6.1.1",
+		"rehype-remark": "^9.1.2",
 		"rehype-stringify": "^9.0.2",
 		"remark-frontmatter": "^4.0.1",
 		"remark-gfm": "^3.0.1",
@@ -45,6 +47,7 @@
 		"remark-wiki-link": "^1.0.4",
 		"unified": "^10.1.1",
 		"unist-builder": "^3.0.0",
+		"unist-util-map": "^3.0.0",
 		"unist-util-visit": "^4.1.0"
 	}
 }

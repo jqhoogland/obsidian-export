@@ -13,7 +13,6 @@ import remarkMath from "remark-math";
 import remarkWikiLink from "remark-wiki-link";
 // import { citePlugin as remarkCite } from "@benrbray/remark-cite";
 import remarkNumberedFootnoteLabels from "remark-numbered-footnote-labels";
-import rehypeRaw from "rehype-raw";
 import { removeComments } from "./src/comments/comments";
 import remarkDataview from "./src/dataview/remarkDataview";
 
@@ -78,7 +77,7 @@ export default class ObsidianExport extends Plugin {
 				const data = await removeComments(_data)
 
 				const parsedData = String(await unified()
-					.use(remarkParse)
+					.use(remarkParse,)
 					.use(remarkFrontmatter)
 					.use(remarkGfm)
 					// .use(remarkRemoveObsidianComments)
@@ -89,7 +88,7 @@ export default class ObsidianExport extends Plugin {
 					.use(remarkDataview, { dv, page: note })
 					// .use(remarkCite)
 					.use(remarkRehype, { allowDangerousHtml: true })
-					.use(rehypeRaw)
+					// .use(rehypeRaw)
 					.use(rehypeStringify,)
 					.process(data)
 				)
