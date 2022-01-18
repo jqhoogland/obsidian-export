@@ -15,6 +15,7 @@ import remarkWikiLink from "remark-wiki-link";
 import remarkNumberedFootnoteLabels from "remark-numbered-footnote-labels";
 import rehypeRaw from "rehype-raw";
 import { removeComments } from "./src/comments/comments";
+import remarkDataview from "./src/dataview/remarkDataview";
 
 
 // Remember to rename these classes and interfaces!
@@ -56,9 +57,10 @@ export default class ObsidianExport extends Plugin {
 	}
 
 	exportMd() {
-		const notes = getAPI(this.app).pages().where(f => f.published === true)
+		const dv = getAPI(this.app)
+		const notes = dv.pages().where(f => f.published === true)
 		console.log("[Export]: Exporting...", notes)
-		console.log(this.app, this.manifest)
+		console.log(this.app, this.manifest,)
 
 		const outPath = this.app.vault?.adapter?.basePath + "/" + this.settings.outPath + "/"
 
@@ -84,6 +86,7 @@ export default class ObsidianExport extends Plugin {
 					.use(remarkMermaid)
 					.use(remarkNumberedFootnoteLabels)
 					.use(remarkWikiLink, { aliasDivider: "|" })
+					.use(remarkDataview, { dv, page: note })
 					// .use(remarkCite)
 					.use(remarkRehype, { allowDangerousHtml: true })
 					.use(rehypeRaw)

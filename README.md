@@ -33,7 +33,9 @@ This uses [remark](https://github.com/remarkjs/remark) under the hood to do the 
 - [ ] Remove links to unpublished pages
 - [ ] Include slugs in unpublished pages
 - [ ] Add support for citations (by reading obsidian-cite settings).
-- [ ] Add support for obsidian-markdown-style comments `%% ... %%`
+- [ ] Comments
+	- [x] Add support to remove obsidian-markdown-style comments `%% ... %%`
+	- [ ] Add support to transform obsidian-markdown-style comments to html comments
 - [ ] More powerful wikilinks
 	- [ ] Add support for linking to specific headings. `[[Page#Heading 1]]`
 	- [ ] Add support for linking to specific blocks. `[[Page^123456]]`
