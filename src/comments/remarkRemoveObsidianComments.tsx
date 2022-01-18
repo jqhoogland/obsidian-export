@@ -1,5 +1,5 @@
-import { obsidianComments } from "./micromark-extension-obsidian-comments";
-import { obsidianCommentsFromMarkdown, obsidianCommentsToMarkdown } from "./mdast-util-obsidian-comments";
+import { comment } from "./micromark-extension-obsidian-comments";
+import { commentsFromMarkdown, commentsToMarkdown } from "./mdast-util-obsidian-comments";
 
 interface RemarkRemoveObsidianCommentsOptions {
 	convertToHTML?: boolean;
@@ -15,9 +15,9 @@ interface RemarkRemoveObsidianCommentsOptions {
 export default function remarkRemoveObsidianComments(options: RemarkRemoveObsidianCommentsOptions = {}) {
 	const data = this.data()
 
-	add('micromarkExtensions', obsidianComments)
-	add('fromMarkdownExtensions', obsidianCommentsFromMarkdown)
-	add('toMarkdownExtensions', obsidianCommentsToMarkdown)
+	add('micromarkExtensions', comment())
+	add('fromMarkdownExtensions', commentsFromMarkdown())
+	add('toMarkdownExtensions', commentsToMarkdown())
 
 	/**
 	 * @param {string} field

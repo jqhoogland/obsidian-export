@@ -14,7 +14,7 @@ import remarkWikiLink from "remark-wiki-link";
 // import { citePlugin as remarkCite } from "@benrbray/remark-cite";
 import remarkNumberedFootnoteLabels from "remark-numbered-footnote-labels";
 import rehypeRaw from "rehype-raw";
-import remarkRemoveObsidianComments from "./src/comments/remarkRemoveObsidianComments";
+import { removeComments } from "./src/comments/comments";
 
 
 // Remember to rename these classes and interfaces!
@@ -67,13 +67,19 @@ export default class ObsidianExport extends Plugin {
 			const inFilePath = (this.app.vault?.adapter?.basePath + "/" + note?.file?.path);
 			const outFilePath = await createPathToSlug(outPath, slug);
 
-			fs.readFile(inFilePath, "utf-8", async (err, data) => {
+			fs.readFile(inFilePath, "utf-8", async (err, _data) => {
 				if (err) console.error(err);
+
+				// Informal processors (substantially easier than writing new remark plugins.
+				// TODO: Eventually migrate to remark
+
+				const data = await removeComments(_data)
+
 				const parsedData = String(await unified()
 					.use(remarkParse)
-					.use(remarkRemoveObsidianComments)
 					.use(remarkFrontmatter)
 					.use(remarkGfm)
+					// .use(remarkRemoveObsidianComments)
 					.use(remarkMath)
 					.use(remarkMermaid)
 					.use(remarkNumberedFootnoteLabels)
