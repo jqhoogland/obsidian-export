@@ -27,6 +27,7 @@
 		"lodash": "^4.17.21",
 		"mathjs": "^10.1.0",
 		"mdast": "^3.0.0",
+		"mdast-builder": "^1.1.1",
 		"mdast-util-to-markdown": "^1.2.6",
 		"micromark-util-chunked": "^1.0.0",
 		"micromark-util-classify-character": "^1.0.0",
@@ -43,6 +44,7 @@
 		"remark-rehype": "^10.1.0",
 		"remark-wiki-link": "^1.0.4",
 		"unified": "^10.1.1",
+		"unist-builder": "^3.0.0",
 		"unist-util-visit": "^4.1.0"
 	}
 }

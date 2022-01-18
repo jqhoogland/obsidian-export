@@ -1,6 +1,8 @@
 import { visit } from "unist-util-visit";
 import { Parent } from "mdast";
 import { DataviewApi } from "obsidian-dataview/lib/api/plugin-api";
+import { root } from "mdast-builder";
+import { u } from "unist-builder";
 
 class Cards {
 	getParentName(f) {
@@ -55,6 +57,48 @@ class Cards {
 	}
 }
 
+const addCodeblockProcessors = dv => {
+	dv.el = (tag, text) => {
+		return `<${tag}>${text}</${tag}>`
+	}
+	dv.header = (level, text) => {
+		return `<h${level}>${text}</h${level}>`
+	}
+	dv.span = (text) => {
+		return `<span>${text}</span>`
+	}
+	dv.paragraph = (text) => {
+		return `<p>${text}</p>`
+	}
+	// dv.view = (path, input) => {}
+	dv.list = (elements) => {
+		return `
+        <ul>
+          ${elements.map(el => `<li>${el}</li>`)}
+        </ul>
+        `
+	}
+	// dv.taskList = (tasks, groupByFile) => {}
+	dv.table = (headers, elements) => {
+		return `
+		<table>
+		  <thead>
+		    <tr>
+		      ${headers.map(header => `<th>${header}</th>`)}
+            </tr>
+          </thead>
+          ${elements.map(el => `
+		    <tr>
+		      ${el.map(cell => `<td>${cell}</td>`)}
+            </tr>
+          `)
+		}
+		</table>
+		`
+	}
+	return dv
+}
+
 
 /**
  * Based on remark-mermaidjs:
@@ -66,17 +110,19 @@ const remarkDataview = (options = {}) => (tree) => {
 	const instances: [string, number, Parent][] = [];
 
 	visit(tree, { type: "code", lang: "dataviewjs" }, (node, index, parent) => {
-		const { dv, page } = options
+		const { dv: _dv, page } = options
 		const customJS = { Cards }
 		console.log("OG", node, parent, index)
 
-		dv.component = document.createElement("div")
 
+		// dv.component = document.createElement("div")
+		const dv = addCodeblockProcessors(_dv)
+		window.dv = dv;
 		console.log({ dv, page, customJS })
 		const res = window.eval(node.value)
 
 		console.log("AFTER", res)
-		if (res) node.value = res
+		if (res) node = u("root", root)
 	})
 
 	// Nothing to do. No need to start puppeteer in this case.
