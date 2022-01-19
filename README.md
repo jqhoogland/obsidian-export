@@ -1,14 +1,10 @@
 ## Obsidian Export
 
-[Obsidian Publish](https://obsidian.md/publish) is great but lacks support for many of the plugins we've grown dependent on — most importantly, [Dataview](https://github.com/blacksmithgu/obsidian-dataview).
+[Obsidian Publish](https://obsidian.md/publish) is great but lacks support for many of the plugins we've grown dependent on — in particular [Dataview](https://github.com/blacksmithgu/obsidian-dataview), but also Citations, Admonition, and more.
 
-This plugin lets you compile your `md` notes to `html` for self-hosting. It includes support for (some) of these plugins.
+This plugin lets you compile your `md` notes to `html` for self-hosting. 
 
-Currently:
-
-- [ ] [Dataview](https://github.com/blacksmithgu/obsidian-dataview)
-
-This uses [remark](https://github.com/remarkjs/remark) under the hood to do the converting. In the future, it'll be possible to use any remark plugins you'd like to use. For now, it uses a set of plugins that recreates Obsidian-like markdown:
+It uses [remark](https://github.com/remarkjs/remark) under the hood to do the converting, so, in the future, it'll be possible to use any remark plugins you'd like. For now, it uses a set of plugins that can interpret Obsidian-flavored markdown:
 
 - [remark-gfm](https://github.com/remarkjs/remark-gfm)
 - [remark-frontmatter](https://github.com/remarkjs/remark-frontmatter)
@@ -18,12 +14,14 @@ This uses [remark](https://github.com/remarkjs/remark) under the hood to do the 
 - [remark-wiki-link](https://github.com/landakram/remark-wiki-link)
 - [remark-cite](https://github.com/benrbray/remark-cite)
 
+Plus a few new modifications to do things like comments and embed wikilinks `![[]]`.
+
 ---
 
 ## Reference
 
 - As with Obsidian Publish, you just need to include a `published: true` field in your metadata for a note to be included in the export.
-- You can add a `slug: "some-slug"` or `slug: ["one", "of", "several", "slugs"]` to specify the slug of the file produced.
+- You can add a `slug: "some-slug"` or `slug: ["one", "of", "several", "slugs"]` to specify the slug of the file produced. Otherwise it's just the `kebab-case` of your note name.
 
 ---
 
@@ -38,7 +36,7 @@ This uses [remark](https://github.com/remarkjs/remark) under the hood to do the 
 	- [ ] Add support for graph views
 - [ ] Obsidian-flavored markdown
 	- [ ] Add support for tags `#abc`
-    - [ ] Block ids with `^123456`
+	- [ ] Block ids with `^123456`
 	- [ ] Comments
 		- [x] Add support to remove obsidian-markdown-style comments `%% ... %%`
 		- [ ] Add support to transform obsidian-markdown-style comments to html comments
@@ -56,12 +54,13 @@ This uses [remark](https://github.com/remarkjs/remark) under the hood to do the 
 	- [ ] Inline dataview attributes:
 		- [ ] `(key:: value)`
 		- [ ] `[key:: value]`
-	- [ ] Run custom code through local plugins (e.g, `admonition`, `dataview`, `dataviewjs`, `obsidian-button` ).
-		- [ ] Inline code
-		- [ ] Code blocks
+	- [ ] Dataview
+		- [x] dataviewjs
+		- [ ] dataview
+		- [ ] inline dataview
+	- [ ] Admonition
 	- [ ] CustomJS
-	- [ ] Breadcrumbs  
+	- [ ] Breadcrumbs
 	- [ ] Add support for citations (by reading obsidian-cite settings).
 - [ ] Miscellaneous
-    - [ ] Link aliases (forwarding to the primary slug if there are multiple slugs)
-	- [ ]
+	- [ ] Link aliases (forwarding to the primary slug if there are multiple slugs)

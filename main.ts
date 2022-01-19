@@ -15,6 +15,7 @@ import remarkWikiLink from "remark-wiki-link";
 import remarkNumberedFootnoteLabels from "remark-numbered-footnote-labels";
 import { removeComments } from "./src/comments/comments";
 import remarkDataview from "./src/dataview/remarkDataview";
+import rehypeFixObsidianLinks from "./src/links/remarkFixObsidianLinks";
 
 
 // Remember to rename these classes and interfaces!
@@ -88,6 +89,7 @@ export default class ObsidianExport extends Plugin {
 					.use(remarkDataview, { dv, page: note })
 					// .use(remarkCite)
 					.use(remarkRehype, { allowDangerousHtml: true })
+					.use(rehypeFixObsidianLinks, { dv }) // Wikilinks doesn't parse until *after* converting to html
 					// .use(rehypeRaw)
 					.use(rehypeStringify,)
 					.process(data)

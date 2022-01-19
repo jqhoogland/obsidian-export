@@ -1,7 +1,7 @@
 import { visit } from "unist-util-visit";
 import { Parent } from "mdast";
 import { DataviewApi } from "obsidian-dataview/lib/api/plugin-api";
-import { heading, list, listItem, paragraph, table, tableCell, tableRow } from "mdast-builder";
+import { heading, list, listItem, table, tableCell, tableRow } from "mdast-builder";
 import { u } from "unist-builder";
 import { unified } from "unified";
 import rehypeParse from "rehype-parse";
@@ -55,7 +55,7 @@ class Cards {
 			.where((f) => !!f?.published == !!(filters?.published ?? true) && f?.type === type && this.matchFilters(f, filters))
 			.sort(f => order === "date" ? -this.dateToInt(f?.date?.path) : order === "order" ? f?.order : f?.file?.name)
 			.map(f => this.render(dv, f));
-		return dv.list(cards)
+		return dv.span(cards)
 
 	}
 }
@@ -67,7 +67,6 @@ const addCodeblockProcessors = dv => {
 		if (typeof value === "string") {
 			const _res = processor.parse(`<span>${value}</span>`)
 			const res = map(_res, (node) => {
-				console.log("MAPPING", node)
 				return Object.assign({}, node, {
 					data: {
 						...node?.data,
@@ -76,23 +75,22 @@ const addCodeblockProcessors = dv => {
 					}
 				})
 			})
-			console.log(value, _res, res)
 			return res.children ?? u("text", value)
 		}
 		return value
 	}
 
 	dv.el = (tag, text) => {
-		return u("p", { hName: tag }, text)
+		return u("paragraph", { hName: tag }, clean(text))
 	}
 	dv.header = (level, text) => {
-		return heading(level, text)
+		return heading(level, clean(text))
 	}
 	dv.span = (text) => {
-		return paragraph(text)
+		return u("text", { hName: "span" }, clean(text))
 	}
 	dv.paragraph = (text) => {
-		return paragraph(text)
+		return u("paragraph", clean(text))
 	}
 	// dv.view = (path, input) => {}
 	dv.list = (elements) => {
@@ -118,8 +116,6 @@ const remarkDataview = (options = {}) => (tree) => {
 	visit(tree, { type: "code", lang: "dataviewjs" }, (node, index, parent) => {
 		const { dv: _dv, page } = options
 		const customJS = { Cards }
-		console.log("BEFORE", node, parent, index)
-
 
 		// dv.component = document.createElement("div")
 		const dv = addCodeblockProcessors(_dv)
@@ -134,7 +130,6 @@ const remarkDataview = (options = {}) => (tree) => {
 			delete node.lang
 		}
 
-		console.log("AFTER", res, node)
 		return node
 	})
 

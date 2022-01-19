@@ -18,14 +18,43 @@ export const getSlug = (f) => {
 	if (f?.slug && Array.isArray(f?.slug) && f?.slug?.length > 0) {
 		return f?.slug[0]
 	} else if (f?.slug && typeof f?.slug === "string") {
-		if (f?.slug[f?.slug?.length] === "/") return f?.slug + "index"
-
+		if (f?.slug[f?.slug?.length - 1] === "/") return f?.slug + "index"
 		return f?.slug
 	} else {
 		return _.kebabCase(f?.file?.name)
 	}
 }
 
+/**
+ * One of the plugins turns "Links like this" into `#/page/links_like_this`.
+ * This does the opposite.
+ */
+
+export const parseUrl = (url) => {
+	// We don't have to worry about capitalization nor path because dataview can handle the rest.
+	let newUrl = url
+
+	if (url.slice(0, 7) === "#/page/") {
+		newUrl = newUrl.slice(7, newUrl.length)
+	}
+	const parts = newUrl.split("/")
+	return parts[parts?.length - 1].replace(/\_/g, " ")
+}
+
+
+/**
+ * Returns the results of `getSlug(f)` if the file `f` is published.
+ * Otherwise, looks for `metadata.external` and uses that, or returns `null`
+ * @param f
+ */
+export const getUrl = (f) => {
+	if (f?.published) {
+		return getSlug(f)
+	} else if (f?.external) {
+		return f?.external
+	}
+	return null
+}
 
 /**
  * Split slug by `/` to get parent directories.
