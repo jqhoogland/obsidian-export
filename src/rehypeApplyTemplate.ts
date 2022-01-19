@@ -86,6 +86,7 @@ h3 { font-size: 2.125rem; margin-top: .675rem }
 h4 { font-size: 1.875rem; margin-top: .5rem }
 h5 { font-size: 1.5rem; margin-top: .375rem }
 h6 { font-size: 1.25rem; margin-top: .5rem }
+ol { list-style: decimal }
 `)]
 
 const DEFAULT_STYLES = [

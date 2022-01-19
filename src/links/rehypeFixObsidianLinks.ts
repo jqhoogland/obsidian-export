@@ -6,7 +6,10 @@ const rehypeFixObsidianLinks = (options = {}) => (tree) => {
 	const dv = options?.dv
 
 	visit(tree, { tagName: "a" }, (node, index, parent) => {
-		const [oldUrl, id = ""] = parseUrl(node?.properties?.href).split("#");
+		const href = node?.properties?.href;
+		if (href?.[0] === "#" && href?.slice(0, 7) !== "#/page/") return node;
+
+		const [oldUrl, id = ""] = parseUrl(href).split("#");
 
 		if (oldUrl.slice(0, 4) === "http") {
 			return node
