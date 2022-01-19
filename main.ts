@@ -17,6 +17,7 @@ import { removeComments } from "./src/comments/comments";
 import remarkDataview from "./src/dataview/remarkDataview";
 import rehypeFixObsidianLinks from "./src/links/rehypeFixObsidianLinks";
 import processWikiEmbeds from "./src/embed/processWikiEmbeds";
+import rehypeApplyTemplate from "./src/rehypeApplyTemplate";
 
 // Remember to rename these classes and interfaces!
 
@@ -59,11 +60,25 @@ export default class ObsidianExport extends Plugin {
 	exportMd() {
 		const dv = getAPI(this.app)
 		const notes = dv.pages().where(f => f.published === true)
+
 		console.log("[Export]: Exporting...", notes)
 		console.log(this.app, this.manifest,)
 
+		// Where to put the compiled html
 		const outPath = this.app.vault?.adapter?.basePath + "/" + this.settings.outPath + "/"
 
+		// Export custom css snippets
+		const csscache: Map<string, string> = this.app.customCss.csscache;
+		const relSnippetOutPaths = [...csscache].map(([relFilePath, fileContents]) => {
+			const _relFilePathParts = relFilePath.split("/");
+			const fileName = _relFilePathParts[_relFilePathParts.length - 1];
+			const relOutFilePath = "static/" + fileName;
+			const outFilePath = outPath + relOutFilePath;
+			fs.writeFileSync(outFilePath, fileContents);
+			return relOutFilePath
+		})
+
+		// Parse the markdown, clean up the links, etc.
 		notes?.values?.forEach(async note => {
 			const slug = getSlug(note);
 			const inFilePath = (this.app.vault?.adapter?.basePath + "/" + note?.file?.path);
@@ -91,6 +106,7 @@ export default class ObsidianExport extends Plugin {
 					.use(remarkRehype, { allowDangerousHtml: true })
 					.use(rehypeFixObsidianLinks, { dv }) // Wikilinks doesn't parse until *after* converting to html
 					// .use(rehypeRaw)
+					.use(rehypeApplyTemplate, { styles: relSnippetOutPaths })
 					.use(rehypeStringify, { allowDangerousHtml: true })
 					.process(data)
 				)
@@ -102,9 +118,7 @@ export default class ObsidianExport extends Plugin {
 						if (err) console.error(err)
 					})
 				}
-
 			})
-
 		});
 	}
 

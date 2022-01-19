@@ -39,19 +39,13 @@ const processWikiEmbeds = ({ app }) => (str) => {
 	// Handle pictures
 
 	let _str = str.replace(/!\[([ \w\d\.]*)(?:\|(\d{1,4})x?(\d{0,4}))?\]\((.+)\)/g, (_, name = null, width = null, height = null, url = "") => {
-		console.log({ str, name, url, width, height })
-
 		const src = getSrc(app, url)
-		
 		return `<img style="${width ? `width: ${width};` : ""}${height ? `height: ${height};` : ""}" src="${src}">`
 
 	})
 
 	_str = _str.replace(/!\[\[([ \w\d\.]+)(?:\|(\d{1,4})x?(\d{0,4}))?\]\]/g, (_, name, width, height = null) => {
-		// console.log({ str, name, width, height })
-
 		const src = getSrc(app, name)
-
 		return `<img style="${width ? `width: ${width};` : ""}${height ? `height: ${height};` : ""}" src="${src}">`
 	})
 
