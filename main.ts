@@ -65,7 +65,8 @@ export default class ObsidianExport extends Plugin {
 		console.log(this.app, this.manifest,)
 
 		// Where to put the compiled html
-		const outPath = this.app.vault?.adapter?.basePath + "/" + this.settings.outPath + "/"
+		const basePath = this.app.vault?.adapter?.basePath
+		const outPath = basePath + "/" + this.settings.outPath + "/"
 
 		// Export custom css snippets
 		const csscache: Map<string, string> = this.app.customCss.csscache;
@@ -77,6 +78,19 @@ export default class ObsidianExport extends Plugin {
 			fs.writeFileSync(outFilePath, fileContents);
 			return relOutFilePath
 		})
+
+		// Copy over the current theme
+		const cssTheme = app.vault.config.cssTheme;
+		const cssThemePath = `${basePath}/.obsidian/.obsidian/themes/${cssTheme}.css`;
+		const cssThemeRelOutPath = `static/${cssTheme}.css`
+		const cssThemeOutPath = outPath + cssThemeRelOutPath;
+		try {
+			fs.copyFileSync(cssThemePath, cssThemeOutPath);
+			relSnippetOutPaths.push("/" + cssThemeRelOutPath)
+		} catch (e) {
+			console.error(e)
+		}
+
 
 		// Parse the markdown, clean up the links, etc.
 		notes?.values?.forEach(async note => {

@@ -62,7 +62,7 @@ aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle 
 <!-- Collapsible wrapper -->
 </div>
   </nav>
-  <div class="container mx-auto py-5 px-4  max-width-sm">
+  <div class="container mx-auto py-5 px-4 max-w-md">
   <main class="content"></main>
   </div>
 `
@@ -71,6 +71,22 @@ const getProperties = (style, attr = "href") => {
 	if (typeof style === "string") return { [attr]: style };
 	return style
 }
+
+const DEFAULT_EXTRA_STYLES = [h("style", `
+p {
+  margin-bottom: 0.5rem /* Add a bottom gutter */ 
+}
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+}
+
+h1 { font-size: 3rem; margin-top: 1rem }
+h2 { font-size: 2.5rem; margin-top: .75rem }
+h3 { font-size: 2.125rem; margin-top: .675rem }
+h4 { font-size: 1.875rem; margin-top: .5rem }
+h5 { font-size: 1.5rem; margin-top: .375rem }
+h6 { font-size: 1.25rem; margin-top: .5rem }
+`)]
 
 const DEFAULT_STYLES = [
 	{
@@ -104,7 +120,10 @@ const rehypeApplyTemplate = (options: ApplyTemplateOptions = {}) => (tree) => {
 
 	tree.children = [
 		// Styles
-		h("head", styles.map(style => (h("link", { rel: "stylesheet", type: "text/css", ...getProperties(style) })))),
+		h("head", [...styles.map(style => (h("link", {
+			rel: "stylesheet",
+			type: "text/css", ...getProperties(style)
+		}))), ...DEFAULT_EXTRA_STYLES]),
 
 		// Body TODO: Wrap this in a template
 		h("body", template.children),
