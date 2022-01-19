@@ -113,7 +113,6 @@ const rehypeApplyTemplate = (options: ApplyTemplateOptions = {}) => (tree) => {
 	const bodyChildren = [...tree.children];
 
 	const template = unified().use(rehypeParse, { fragment: true }).parse(templateStr)
-	console.log({ template })
 	visit(template, { tagName: "main" }, node => {
 		node.children = bodyChildren
 	})
@@ -131,8 +130,6 @@ const rehypeApplyTemplate = (options: ApplyTemplateOptions = {}) => (tree) => {
 		// Scripts
 		h("footer", scripts.map(script => (h("script", { ...getProperties(script, "src") }))))
 	]
-
-	console.log({ tree })
 
 	return tree
 }

@@ -11,7 +11,6 @@ import remarkFrontmatter from "remark-frontmatter";
 import { remarkMermaid } from "remark-mermaidjs";
 import remarkMath from "remark-math";
 import remarkWikiLink from "remark-wiki-link";
-// import { citePlugin as remarkCite } from "@benrbray/remark-cite";
 import remarkNumberedFootnoteLabels from "remark-numbered-footnote-labels";
 import { removeComments } from "./src/comments/comments";
 import remarkDataview from "./src/dataview/remarkDataview";
@@ -19,6 +18,8 @@ import rehypeFixObsidianLinks from "./src/links/rehypeFixObsidianLinks";
 import processWikiEmbeds from "./src/embed/processWikiEmbeds";
 import rehypeApplyTemplate from "./src/rehypeApplyTemplate";
 import processDVInline from "./src/dataview/processDVInline";
+import remarkProcessCitations from "./src/remarkProcessCitations";
+import { citePlugin as remarkCite } from '@benrbray/remark-cite';
 
 // Remember to rename these classes and interfaces!
 
@@ -92,6 +93,17 @@ export default class ObsidianExport extends Plugin {
 			console.error(e)
 		}
 
+		// Citations (must be in csl-json)
+		const citationExportRelPath = this.app.plugins.plugins?.["obsidian-citation-plugin"]?.settings?.citationExportPath;
+		const citationExportPath = basePath + "/" + citationExportRelPath;
+		const citationsDBString = String(fs.readFileSync(citationExportPath));
+		let citationsDB = []
+
+		try {
+			citationsDB = JSON.parse(citationsDBString);
+		} catch (e) {
+			console.error(e)
+		}
 
 		// Parse the markdown, clean up the links, etc.
 		notes?.values?.forEach(async note => {
@@ -117,7 +129,8 @@ export default class ObsidianExport extends Plugin {
 					.use(remarkNumberedFootnoteLabels)
 					.use(remarkWikiLink, { aliasDivider: "|" })
 					.use(remarkDataview, { dv, page: note })
-					// .use(remarkCite)
+					.use(remarkCite, {})
+					.use(remarkProcessCitations, { db: citationsDB })
 					.use(remarkRehype, { allowDangerousHtml: true })
 					.use(rehypeFixObsidianLinks, { dv }) // Wikilinks doesn't parse until *after* converting to html
 					// .use(rehypeRaw)
