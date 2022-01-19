@@ -45,7 +45,7 @@ Plus a few new modifications to do things like comments and embed wikilinks `![[
 		- [ ] Add support for linking to specific headings. `[[Page#Heading 1]]`
 		- [ ] Add support for linking to specific blocks. `[[Page^123456]]`
 	- [ ] Add support for embed links `![[...]]`
-		- [x] Add support for media (& resizing `![[Image|500]]`). (Images currently only work for media that's kept in a specific folder. Normal markdown images `![]()` aren't working yet).
+		- [x] Add support for media (& resizing `![[Image|500]]`). (Images currently only work for media that's kept in a specific folder.).
 		- [ ] Add support for embedded pages
 		- [ ] Add support for pdfs (and specific page links)
 	- [ ] Add support for markdown within html elements.
