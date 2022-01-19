@@ -15,8 +15,8 @@ import remarkWikiLink from "remark-wiki-link";
 import remarkNumberedFootnoteLabels from "remark-numbered-footnote-labels";
 import { removeComments } from "./src/comments/comments";
 import remarkDataview from "./src/dataview/remarkDataview";
-import rehypeFixObsidianLinks from "./src/links/remarkFixObsidianLinks";
-
+import rehypeFixObsidianLinks from "./src/links/rehypeFixObsidianLinks";
+import processWikiEmbeds from "./src/embed/processWikiEmbeds";
 
 // Remember to rename these classes and interfaces!
 
@@ -75,7 +75,7 @@ export default class ObsidianExport extends Plugin {
 				// Informal processors (substantially easier than writing new remark plugins.
 				// TODO: Eventually migrate to remark
 
-				const data = await removeComments(_data)
+				const data = processWikiEmbeds({ app: this.app })(await removeComments(_data))
 
 				const parsedData = String(await unified()
 					.use(remarkParse,)
@@ -91,7 +91,7 @@ export default class ObsidianExport extends Plugin {
 					.use(remarkRehype, { allowDangerousHtml: true })
 					.use(rehypeFixObsidianLinks, { dv }) // Wikilinks doesn't parse until *after* converting to html
 					// .use(rehypeRaw)
-					.use(rehypeStringify,)
+					.use(rehypeStringify, { allowDangerousHtml: true })
 					.process(data)
 				)
 

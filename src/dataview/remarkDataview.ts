@@ -120,7 +120,7 @@ const remarkDataview = (options = {}) => (tree) => {
 		// dv.component = document.createElement("div")
 		const dv = addCodeblockProcessors(_dv)
 		window.dv = dv;
-		console.log({ dv, page, customJS })
+		// console.log({ dv, page, customJS })
 		const res = window.eval(node.value)
 
 		if (res) {
