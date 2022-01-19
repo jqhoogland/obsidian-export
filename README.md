@@ -53,12 +53,12 @@ Plus a few new modifications to do things like comments and embed wikilinks `![[
 	- [ ] Publish this as a separate `remark-ofm` (Remark Obsidian Flavored Markdown) plugin
 - [ ] Obsidian plugins
 	- [ ] Inline dataview attributes:
-		- [ ] `(key:: value)`
-		- [ ] `[key:: value]`
-	- [ ] Dataview
+		- [x] `(key:: value)`
+		- [x] `[key:: value]`
+		- [ ] Actually do something with the keys (like put this in a `a.title`)
+	- [ ] Dataview blocks
 		- [x] dataviewjs
 		- [ ] dataview
-		- [ ] inline dataview
 	- [ ] Admonition
 	- [ ] CustomJS
 	- [ ] Breadcrumbs

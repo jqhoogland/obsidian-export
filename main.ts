@@ -18,6 +18,7 @@ import remarkDataview from "./src/dataview/remarkDataview";
 import rehypeFixObsidianLinks from "./src/links/rehypeFixObsidianLinks";
 import processWikiEmbeds from "./src/embed/processWikiEmbeds";
 import rehypeApplyTemplate from "./src/rehypeApplyTemplate";
+import processDVInline from "./src/dataview/processDVInline";
 
 // Remember to rename these classes and interfaces!
 
@@ -104,7 +105,7 @@ export default class ObsidianExport extends Plugin {
 				// Informal processors (substantially easier than writing new remark plugins.
 				// TODO: Eventually migrate to remark
 
-				const data = processWikiEmbeds({ app: this.app })(await removeComments(_data))
+				const data = processDVInline(processWikiEmbeds({ app: this.app })(await removeComments(_data)))
 
 				const parsedData = String(await unified()
 					.use(remarkParse,)
