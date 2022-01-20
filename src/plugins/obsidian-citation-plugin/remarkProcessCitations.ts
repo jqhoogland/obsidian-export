@@ -57,7 +57,6 @@ const remarkProcessCitations = (options) => tree => {
 		})
 
 		parent.children = flatMap(parent.children, child => {
-			if (child.type === "cite") console.log({ node, child })
 			if (child.type === "cite" && child.value === node.value) {
 				if (_citations?.length > 0) {
 					// Map citations to the format `[1, 2, 3]` with the number representing the index of that citation.
@@ -97,7 +96,6 @@ const remarkProcessCitations = (options) => tree => {
 		brk
 	] : [];
 
-	if (citations?.length > 0) console.log({ citations, referencesSection })
 
 	tree.children = [...tree.children, ...referencesSection]
 

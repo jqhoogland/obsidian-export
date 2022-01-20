@@ -12,23 +12,26 @@ import { remarkMermaid } from "remark-mermaidjs";
 import remarkMath from "remark-math";
 import remarkWikiLink from "remark-wiki-link";
 import remarkNumberedFootnoteLabels from "remark-numbered-footnote-labels";
-import { removeComments } from "./src/comments/comments";
-import remarkDataview from "./src/dataview/remarkDataview";
-import rehypeFixObsidianLinks from "./src/links/rehypeFixObsidianLinks";
-import processWikiEmbeds from "./src/embed/processWikiEmbeds";
-import rehypeApplyTemplate from "./src/rehypeApplyTemplate";
-import processDVInline from "./src/dataview/processDVInline";
-import remarkProcessCitations from "./src/remarkProcessCitations";
+import { removeComments } from "./src/core/comments/comments";
+import remarkDataview from "./src/plugins/obsidian-dataview/remarkDataview";
+import rehypeFixObsidianLinks from "./src/core/links/rehypeFixObsidianLinks";
+import processWikiEmbeds from "./src/core/embed/processWikiEmbeds";
+import rehypeApplyTemplate from "./src/core/templates/rehypeApplyTemplate";
+import processDVInline from "./src/plugins/obsidian-dataview/processDVInline";
+import remarkProcessCitations from "./src/plugins/obsidian-citation-plugin/remarkProcessCitations";
 import { citePlugin as remarkCite } from '@benrbray/remark-cite';
+import remarkButtons from "./src/plugins/buttons/remarkButtons";
 
 // Remember to rename these classes and interfaces!
 
 interface ObsidianExportSettings {
 	outPath: string;
+	buttonDefinitions: string;
 }
 
 const DEFAULT_SETTINGS: ObsidianExportSettings = {
-	outPath: 'out'
+	outPath: 'out',
+	buttonDefinitions: "5 Miscellaneous/Buttons.md"
 }
 
 
@@ -131,6 +134,11 @@ export default class ObsidianExport extends Plugin {
 					.use(remarkDataview, { dv, page: note })
 					.use(remarkCite, {})
 					.use(remarkProcessCitations, { db: citationsDB })
+					.use(remarkButtons, {
+						plugin: this?.app?.plugins?.plugins?.buttons,
+						definitions: basePath + "/" + this.settings.buttonDefinitions
+					})
+					// Convert to HAST
 					.use(remarkRehype, { allowDangerousHtml: true })
 					.use(rehypeFixObsidianLinks, { dv }) // Wikilinks doesn't parse until *after* converting to html
 					// .use(rehypeRaw)

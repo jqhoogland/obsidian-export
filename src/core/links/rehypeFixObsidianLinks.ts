@@ -1,5 +1,5 @@
 import { visit } from "unist-util-visit";
-import { getUrl, parseUrl } from "../../utils";
+import { getUrl, parseUrl } from "../../../utils";
 
 const rehypeFixObsidianLinks = (options = {}) => (tree) => {
 
@@ -11,7 +11,7 @@ const rehypeFixObsidianLinks = (options = {}) => (tree) => {
 
 		const [oldUrl, id = ""] = parseUrl(href).split("#");
 
-		if (oldUrl.slice(0, 4) === "http") {
+		if (["http", "mail"].includes(oldUrl.slice(0, 4))) {
 			return node
 		}
 
