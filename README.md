@@ -2,18 +2,22 @@
 
 [Obsidian Publish](https://obsidian.md/publish) is great but lacks support for many of the plugins we Obsidian addicts have grown accustomed to — in particular [Dataview](https://github.com/blacksmithgu/obsidian-dataview), but also [Citations](https://github.com/hans/obsidian-citation-plugin), [Admonition](https://github.com/valentine195/obsidian-admonition), and more.
 
-This plugin lets you export your `md` notes to `html` static files for self-hosting. It supports a bunch of popular plugins.
+This plugin lets you export your `md` notes to `html` static files for self-hosting (for example, with [Netlify](https://www.netlify.com/)). It supports a bunch of popular plugins.
+
+For an example, check out [my personal website](https://jessehoogland.com/). (You can see it's still a little wonky, but it's getting there.)
 
 ---
 
 ## Reference
 
+### How to Export
+
 - As with Obsidian Publish, you just need to include a `published: true` field in your metadata for a note to be included in the export.
-- You can add a `slug: "some-slug"` or `slug: ["one", "of", "several", "slugs"]` to specify the slug of the file produced. Otherwise it's just the `kebab-case` of your note name.
+- You can add a `slug: "some-slug"` or `slug: ["one", "of", "several", "slugs"]` to specify the slug of the file produced. Otherwise, it's just the `kebab-case` of your note name.
 - By default, links to unpublished notes will be removed. However, you can include an `external` field in an unpublished note's metadata. Then, the link will be transformed to point to the value of `external`.
 
 ```markdown
-%% "My Random Note" %%
+%% In "My Random Note" %%
 ---
 published: true slug: "custom-slug"  
 external: https://www.random.org/
@@ -25,6 +29,39 @@ external: https://www.random.org/
 - If `published` is `false`, links to this note will be replaced with `https://www.random.org/`
 
 ```
+
+### Templates
+
+You can create a custom template to wrap your notes in `template.html` (put this in your vault's top-level directory). This uses [mustache](https://www.npmjs.com/package/mustache), with the following options
+
+```js
+{
+	nav: {
+		brand: string,
+			items
+	:
+		{
+			label: string, href
+		:
+			string
+		}
+	}
+,
+	// Already rendered:
+	main: string, // This is where your note's contents go 
+		head
+:
+	string,
+		footer
+:
+	string,
+}
+```
+
+### Styling
+
+You can also provide custom styling in a `publish.css` (again in your vault root). Currently, your snippets, theme, and `obsidian.css` are all included in the export. (There is no option yet to opt out).
+
 
 ---
 
@@ -44,7 +81,7 @@ Plus a few new modifications to do things like comments and embed wikilinks `![[
 
 ---
 
-## Plugins
+## Available plugins
 
 - [Dataview](https://github.com/blacksmithgu/obsidian-dataview) (partial).
 	- You can use `dataviewjs` blocks and inline attributes. `dataview` blocks and inline blocks are still unsupported.
