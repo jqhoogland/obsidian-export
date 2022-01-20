@@ -28,9 +28,9 @@ class Cards {
 
 		return `
           <a class="internal-link flex self-stretch hover:no-underline hover:text-slate-700" href="${f?.file?.name}" data-href="${f?.file?.name}" target="_blank" rel="noopener">
-            <div class="self-stretch hover:bg-slate-200 flex-6 card mb-2">
-              <div class="flex">
-                <h4 class="pr-5 mt-1">${icon ?? ""}</h4>
+            <div class="self-stretch hover:bg-slate-200 flex-6 card mb-2 w-full">
+              <div class="flex flex-1 space-x-4">
+                <h5 class="mt-1">${icon ?? ""}</h5>
                 <h6 class="text-slate-800 font-semibold mt-1">${f.file.name}</h6>
               </div>
              ${f?.description ? `<div class="text-slate-500 hover:text-slate-500">${f?.description}</div>` : ""}
@@ -115,7 +115,7 @@ const remarkDataview = (options = {}) => (tree) => {
 
 	visit(tree, { type: "code", lang: "dataviewjs" }, (node, index, parent) => {
 		const { dv: _dv, page } = options
-		const customJS = { Cards }
+		// const customJS = { Cards }
 
 		// dv.component = document.createElement("div")
 		const dv = addCodeblockProcessors(_dv)

@@ -2,6 +2,8 @@ import h from "hastscript";
 import { unified } from "unified";
 import rehypeParse from "rehype-parse";
 import { visit } from "unist-util-visit";
+import { DEFAULT_EXTRA_STYLES, DEFAULT_SCRIPTS, DEFAULT_STYLES } from "./css";
+import _ = require("lodash");
 
 interface NavItem {
 	label: string,
@@ -72,44 +74,16 @@ const getProperties = (style, attr = "href") => {
 	return style
 }
 
-const DEFAULT_EXTRA_STYLES = [h("style", `
-p {
-  margin-bottom: 0.5rem /* Add a bottom gutter */ 
-}
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 600;
-}
-
-h1 { font-size: 3rem; margin-top: 1rem }
-h2 { font-size: 2.5rem; margin-top: .75rem }
-h3 { font-size: 2.125rem; margin-top: .675rem }
-h4 { font-size: 1.875rem; margin-top: .5rem }
-h5 { font-size: 1.5rem; margin-top: .375rem }
-h6 { font-size: 1.25rem; margin-top: .5rem }
-ol { list-style: decimal }
-`)]
-
-const DEFAULT_STYLES = [
-	{
-		href: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css",
-		integrity: "sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==",
-		crossorigin: "anonymous",
-		referrerpolicy: "no-referrer"
-	},
-	{ href: "https://cdn.jsdelivr.net/npm/tw-elements/dist/css/index.min.css" }
-]
-const DEFAULT_SCRIPTS = [
-	"https://cdn.jsdelivr.net/npm/tw-elements/dist/js/index.min.js"
-]
-
 
 const rehypeApplyTemplate = (options: ApplyTemplateOptions = {}) => (tree) => {
+	const { title = "", links = [] } = options
+
 	// Add stylesheets
 	const styles = [...(options?.styles ?? []), ...DEFAULT_STYLES];
 	const scripts = [...(options?.scripts ?? []), ...DEFAULT_SCRIPTS];
 	const templateStr = (options?.template ?? DEFAULT_TEMPLATE)({
-		brand: "Jesse Hoogland",
-		items: [{ label: "Articles", href: "/articles" }, { label: "Series", href: "/series" }]
+		brand: title,
+		items: links.map(link => ({ label: _.capitalize(link), href: `/${link}` }))
 	});
 	const bodyChildren = [...tree.children];
 

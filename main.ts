@@ -21,17 +21,22 @@ import processDVInline from "./src/plugins/obsidian-dataview/processDVInline";
 import remarkProcessCitations from "./src/plugins/obsidian-citation-plugin/remarkProcessCitations";
 import { citePlugin as remarkCite } from '@benrbray/remark-cite';
 import remarkButtons from "./src/plugins/buttons/remarkButtons";
+import rehypeKatex from "rehype-katex";
 
 // Remember to rename these classes and interfaces!
 
 interface ObsidianExportSettings {
 	outPath: string;
 	buttonDefinitions: string;
+	websiteTitle: string,
+	navLinks: string[]
 }
 
 const DEFAULT_SETTINGS: ObsidianExportSettings = {
 	outPath: 'out',
-	buttonDefinitions: "5 Miscellaneous/Buttons.md"
+	buttonDefinitions: "5 Miscellaneous/Buttons.md",
+	websiteTitle: "Jesse Hoogland",
+	navLinks: ["articles", "series", "contact"]
 }
 
 
@@ -91,10 +96,15 @@ export default class ObsidianExport extends Plugin {
 		const cssThemeOutPath = outPath + cssThemeRelOutPath;
 		try {
 			fs.copyFileSync(cssThemePath, cssThemeOutPath);
-			relSnippetOutPaths.push("/" + cssThemeRelOutPath)
+			relSnippetOutPaths.unshift("/" + cssThemeRelOutPath)
 		} catch (e) {
 			console.error(e)
 		}
+
+		// And the standard app.css
+		fs.copyFileSync(`${basePath}/obsidian.css`, `${outPath}static/obsidian.css`)
+		relSnippetOutPaths.unshift("/static/obsidian.css")
+
 
 		// Citations (must be in csl-json)
 		const citationExportRelPath = this.app.plugins.plugins?.["obsidian-citation-plugin"]?.settings?.citationExportPath;
@@ -140,9 +150,14 @@ export default class ObsidianExport extends Plugin {
 					})
 					// Convert to HAST
 					.use(remarkRehype, { allowDangerousHtml: true })
+					.use(rehypeKatex)
 					.use(rehypeFixObsidianLinks, { dv }) // Wikilinks doesn't parse until *after* converting to html
 					// .use(rehypeRaw)
-					.use(rehypeApplyTemplate, { styles: relSnippetOutPaths })
+					.use(rehypeApplyTemplate, {
+						styles: relSnippetOutPaths,
+						title: this.settings.websiteTitle,
+						links: this.settings.navLinks
+					})
 					.use(rehypeStringify, { allowDangerousHtml: true })
 					.process(data)
 				)

@@ -46,10 +46,10 @@ Plus a few new modifications to do things like comments and embed wikilinks `![[
 
 ## Plugins
 
-- [Dataview](https://github.com/blacksmithgu/obsidian-dataview) (partially).
+- [Dataview](https://github.com/blacksmithgu/obsidian-dataview) (partial).
 	- You can use `dataviewjs` blocks and inline attributes. `dataview` blocks and inline blocks are still unsupported.
 - [Citations](https://github.com/hans/obsidian-citation-plugin) (fully).
-- [Buttons](https://github.com/shabegom/buttons) ()
+- [Buttons](https://github.com/shabegom/buttons) (only for link buttons)
 
 ---
 
@@ -71,6 +71,7 @@ Plus a few new modifications to do things like comments and embed wikilinks `![[
 		- [ ] Tags (`#abc`)
 		- [ ] Block ids (`^123456`)
 		- [x] Comments (`%% ... %%`). This plugin currently just ignores comments. Another option would be to convert to html comments.
+		- [ ] Highlighting (`==...==`)
 - [ ] Plugins
 	- [ ] [Dataview](https://github.com/blacksmithgu/obsidian-dataview)
 		- [ ] Code blocks
@@ -79,7 +80,7 @@ Plus a few new modifications to do things like comments and embed wikilinks `![[
 			- [ ] inline blocks
 		- [x] Inline attributes (currently just disregarding the key)
 	- [x] [Citations](https://github.com/hans/obsidian-citation-plugin)
-	- [ ] [Buttons](https://github.com/shabegom/buttons)
+	- [x] [Buttons](https://github.com/shabegom/buttons) (only for link buttons)
 	- [ ] [Admonition](https://github.com/valentine195/obsidian-admonition)
 	- [ ] [CustomJS](https://github.com/samlewis0602/obsidian-custom-js)
 	- [ ] [Breadcrumbs](https://github.com/SkepticMystic/breadcrumbs)	

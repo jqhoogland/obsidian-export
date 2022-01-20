@@ -35,7 +35,7 @@ const renderCitation = (citation) => {
 	return [
 		text(`${authors && authors + ". "}${citation?.title} ${year ? `(${year})` : ""}`),
 		link(`#citation-${citation?.id}`, "↩"),
-		link(citation?.URL, "🔗")
+		...(citation?.url ? [link(citation?.URL, "🔗")] : [])
 	]
 
 };

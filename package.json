@@ -34,6 +34,7 @@
 		"micromark-util-classify-character": "^1.0.0",
 		"micromark-util-resolve-all": "^1.0.0",
 		"micromark-util-symbol": "^1.0.1",
+		"rehype-katex": "^6.0.2",
 		"rehype-parse": "^8.0.3",
 		"rehype-raw": "^6.1.1",
 		"rehype-remark": "^9.1.2",
