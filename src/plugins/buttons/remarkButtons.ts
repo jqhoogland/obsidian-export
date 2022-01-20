@@ -1,6 +1,7 @@
 import { visit } from "unist-util-visit";
 import * as fs from "fs";
 import { u } from "unist-builder";
+import { InlineCode, Root } from "mdast";
 
 interface Button {
 	name: string,
@@ -8,12 +9,16 @@ interface Button {
 	id: string // "button-<custom-bit>"
 }
 
-const remarkButtons = (options) => (tree) => {
-	const plugin = options?.plugin;
-	const definitions = options?.definitions;  // Unlike the original plugin, you need to specify *where* the definitions are kept.
-	console.log({ plugin })
+interface ButtonsOptions {
+	plugin: any; // TODO: Fill in with a peer dep.
+	definitions: string // path to the file where button definitions are kept (unlike original plugin)
+}
 
-	if (!plugin) return tree
+const remarkButtons = (options: ButtonsOptions) => (tree: Root) => {
+	const plugin = options?.plugin;
+	const definitions = options?.definitions;
+
+	if (!plugin || !definitions) return tree
 
 	// First, process the button definitions.
 	// This can only handle link definitions
@@ -29,7 +34,7 @@ const remarkButtons = (options) => (tree) => {
 	 *
 	 */
 	const buttonMatch = /```button\nname (.*)\ntype link\naction (.*)\n```\n\^button\-([\d\w]*)/g
-	const buttonsDefinitionsFile = String(fs.readFileSync(options?.definitions))
+	const buttonsDefinitionsFile = String(fs.readFileSync(definitions))
 	const buttons: Button[] = [...buttonsDefinitionsFile.matchAll(buttonMatch)]
 		.map(([_, name, action, id]) => ({
 			name,
@@ -39,7 +44,7 @@ const remarkButtons = (options) => (tree) => {
 
 
 	// Fill in the button definitions
-	visit(tree, { type: "inlineCode", }, (node) => {
+	visit(tree, { type: "inlineCode", }, (node: InlineCode) => {
 			if (node?.value?.slice(0, 7) === "button-") {
 				// Find the matching button (or safely fall back to keeping the code block)
 				const button = buttons.find(_button => _button.id === node?.value)
@@ -58,8 +63,6 @@ const remarkButtons = (options) => (tree) => {
 				node.data.hName = "form"
 				node.data.hProperties = { action: button.action }
 				//node.data.hChildren = [h("button", { type: "submit" }, button?.name)]
-
-				console.log({ node })
 			}
 
 			return node

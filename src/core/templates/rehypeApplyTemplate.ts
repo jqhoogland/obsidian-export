@@ -11,6 +11,9 @@ interface NavItem {
 }
 
 interface ApplyTemplateOptions {
+	links: string[],
+	brand: string,
+	title: string,
 	styles: (string)[],
 	scripts: (string)[],
 	template: (templateOptions: { brand: string, items: NavItem[] }) => string // should be valid html (to be converted to hast)
@@ -88,7 +91,7 @@ const rehypeApplyTemplate = (options: ApplyTemplateOptions = {}) => (tree) => {
 	const scripts = [...(options?.scripts ?? []), ...DEFAULT_SCRIPTS];
 	const templateStr = (options?.template ?? DEFAULT_TEMPLATE)({
 		brand,
-		items: links.map(link => ({ label: _.capitalize(link), href: `/${link}` }))
+		items: links.map(link => ({ label: _.capitalize(link.replace("/", "")), href: `/${link}` }))
 	});
 	const bodyChildren = [...tree.children];
 

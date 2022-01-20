@@ -35,16 +35,16 @@ const getSrc = (app, name) => {
 	return name
 }
 
-const processWikiEmbeds = ({ app }) => (str) => {
+const processWikiEmbeds = ({ app }) => async (str) => {
 	// Handle pictures
 
-	let _str = str.replace(/!\[([ \w\d\.]*)(?:\|(\d{1,4})x?(\d{0,4}))?\]\((.+)\)/g, (_, name = null, width = null, height = null, url = "") => {
+	let _str = await str.replace(/!\[([ \w\d\.]*)(?:\|(\d{1,4})x?(\d{0,4}))?\]\((.+)\)/g, (_, name = null, width = null, height = null, url = "") => {
 		const src = getSrc(app, url)
 		return `<img style="${width ? `width: ${width};` : ""}${height ? `height: ${height};` : ""}" src="${src}">`
 
 	})
 
-	_str = _str.replace(/!\[\[([ \w\d\.]+)(?:\|(\d{1,4})x?(\d{0,4}))?\]\]/g, (_, name, width, height = null) => {
+	_str = await _str.replace(/!\[\[([ \w\d\.]+)(?:\|(\d{1,4})x?(\d{0,4}))?\]\]/g, (_, name, width, height = null) => {
 		const src = getSrc(app, name)
 		return `<img style="${width ? `width: ${width};` : ""}${height ? `height: ${height};` : ""}" src="${src}">`
 	})

@@ -1,11 +1,12 @@
 import { visit } from "unist-util-visit";
-import { Parent } from "mdast";
+import { Code, Root } from "mdast";
 import { DataviewApi } from "obsidian-dataview/lib/api/plugin-api";
 import { heading, list, listItem, table, tableCell, tableRow } from "mdast-builder";
 import { u } from "unist-builder";
 import { unified } from "unified";
 import rehypeParse from "rehype-parse";
 import { map } from "unist-util-map";
+import { LiteralValue } from "obsidian-dataview";
 
 class Cards {
 	getParentName(f) {
@@ -62,6 +63,12 @@ class Cards {
 
 const processor = unified().use(rehypeParse, { fragment: true }) // .use(rehypeRemark)
 
+/**
+ * Mock dv's rendering functions.
+ * Instead of writing elements to the document, render as html strings.
+ *
+ * @param dv
+ */
 const addCodeblockProcessors = dv => {
 	const clean = value => {
 		if (typeof value === "string") {
@@ -104,23 +111,19 @@ const addCodeblockProcessors = dv => {
 }
 
 
-/**
- * Based on remark-mermaidjs:
- * https://github.com/remarkjs/remark/blob/main/doc/plugins.md#list-of-plugins
- *
- * @param options
- */
-const remarkDataview = (options = {}) => (tree) => {
-	const instances: [string, number, Parent][] = [];
+interface DataviewOptions {
+	dv?: DataviewApi,
+	page?: Record<string, LiteralValue>
+}
 
-	visit(tree, { type: "code", lang: "dataviewjs" }, (node, index, parent) => {
-		const { dv: _dv, page } = options
-		// const customJS = { Cards }
+const remarkDataview = (options: DataviewOptions = {}) => (tree: Root) => {
+	const { dv: _dv, page } = options
+	if (!_dv) return tree
 
-		// dv.component = document.createElement("div")
-		const dv = addCodeblockProcessors(_dv)
-		window.dv = dv;
-		// console.log({ dv, page, customJS })
+	const dv = addCodeblockProcessors(_dv)
+	window.dv = dv;
+
+	visit(tree, { type: "code", lang: "dataviewjs" }, (node: Code) => {
 		const res = window.eval(node.value)
 
 		if (res) {
@@ -132,12 +135,6 @@ const remarkDataview = (options = {}) => (tree) => {
 
 		return node
 	})
-
-	// Nothing to do. No need to start puppeteer in this case.
-	if (!instances.length) {
-		return tree;
-	}
-
 
 	return tree
 }

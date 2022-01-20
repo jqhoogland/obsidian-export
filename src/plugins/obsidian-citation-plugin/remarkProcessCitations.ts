@@ -4,6 +4,7 @@ import findIndex from "lodash/findIndex";
 import flatMap from "lodash/flatMap";
 import { brk, heading, link, list, paragraph, text } from "mdast-builder";
 import { u } from "unist-builder"
+import { CitationCSLJSON } from "./index";
 
 const renderName = ({ family, given, literal = false }) => {
 	if (literal) return literal;
@@ -40,8 +41,12 @@ const renderCitation = (citation) => {
 
 };
 
+interface ProcessCitationsOptions {
+	db: CitationCSLJSON[]
+}
 
-const remarkProcessCitations = (options) => tree => {
+
+const remarkProcessCitations = (options: ProcessCitationsOptions) => tree => {
 	const citations = []
 
 	const db = options.db ?? []
