@@ -288,7 +288,6 @@ export default class ObsidianExport extends Plugin {
 						links: this.settings.navLinks,
 						title
 					})
-					.use(rehypeStringify, { allowDangerousHtml: true })
 					.process(data)
 				)
 
