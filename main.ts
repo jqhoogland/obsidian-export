@@ -5,7 +5,6 @@ import * as fs from "fs";
 import remarkParse from "remark-parse";
 import { unified } from "unified";
 import remarkGfm from "remark-gfm";
-import rehypeStringify from "rehype-stringify";
 import remarkRehype from "remark-rehype";
 import remarkFrontmatter from "remark-frontmatter";
 import { remarkMermaid } from "remark-mermaidjs";
@@ -202,6 +201,22 @@ export default class ObsidianExport extends Plugin {
 		return citations
 	}
 
+	/**
+	 * Load a template (.html in mustache format)
+	 * https://www.npmjs.com/package/mustache
+	 */
+	function
+
+	loadTemplate(basePath: string, relPath: string = "template.html"): string | undefined {
+		try {
+			const template = String(fs.readFileSync(`${basePath}/${relPath}`))
+			return template
+		} catch (e) {
+			console.error(`[Obsidian Export] Failed to find template ${relPath}`, e)
+			return undefined
+		}
+	}
+
 
 	async exportMd() {
 		// This plugin uses the dataview API to retrieve published notes:
@@ -220,6 +235,10 @@ export default class ObsidianExport extends Plugin {
 		// Copy over CSS (snippets, theme, obsidian.css, & publish.css)
 		const cssPaths = await this.exportCSS(basePath, outPath, staticPathRel)
 
+		// Load template (wrapper for results of parsing notes)
+		// TODO: Make this a setting
+		const template = this.loadTemplate(basePath, "template.html")
+
 		// Citations (must be in csl-json)
 		const citationsDB = await this.loadCitations(basePath)
 
@@ -235,7 +254,7 @@ export default class ObsidianExport extends Plugin {
 
 			await fs.readFile(srcPath, "utf-8", async (e, _data) => {
 				if (e) {
-					console.error(`[Obsidian Export] Failed to read ${note?.file?.name}`, e)
+					console.error(`[Obsidian Export]: Failed to read ${note?.file?.name}`, e)
 					return
 				}
 
@@ -286,7 +305,8 @@ export default class ObsidianExport extends Plugin {
 						styles: cssPaths,
 						brand: this.settings.websiteTitle,
 						links: this.settings.navLinks,
-						title
+						title,
+						template
 					})
 					.process(data)
 				)
