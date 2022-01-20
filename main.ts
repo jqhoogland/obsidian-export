@@ -22,6 +22,7 @@ import remarkProcessCitations from "./src/plugins/obsidian-citation-plugin/remar
 import { citePlugin as remarkCite } from '@benrbray/remark-cite';
 import remarkButtons from "./src/plugins/buttons/remarkButtons";
 import rehypeKatex from "rehype-katex";
+import { remarkHighlight } from "./src/core/highlight/remarkHighlight";
 
 // Remember to rename these classes and interfaces!
 
@@ -142,6 +143,7 @@ export default class ObsidianExport extends Plugin {
 					.use(remarkMermaid)
 					.use(remarkNumberedFootnoteLabels)
 					.use(remarkWikiLink, { aliasDivider: "|" })
+					.use(remarkHighlight)
 					.use(remarkCite, {})
 					.use(remarkProcessCitations, { db: citationsDB })
 					.use(remarkButtons, {
