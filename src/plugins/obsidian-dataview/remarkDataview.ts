@@ -8,6 +8,11 @@ import rehypeParse from "rehype-parse";
 import { map } from "unist-util-map";
 import { LiteralValue } from "obsidian-dataview";
 
+/**
+ * A class I like to use with CustomJS.
+ * I'll remove this once I've integrated CustomJS.
+ * For now, I need to keep it in scope for the `window.eval` call below
+ */
 class Cards {
 	getParentName(f) {
 		return f?.parent?.type === "file"
