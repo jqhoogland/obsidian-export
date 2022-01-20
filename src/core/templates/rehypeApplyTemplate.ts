@@ -17,6 +17,7 @@ interface ApplyTemplateOptions {
 }
 
 // Using tailwindcss
+// TODO: Support for jinja-style templates
 const DEFAULT_TEMPLATE = ({ brand, items }) => `
 <nav class="
 relative
@@ -65,6 +66,10 @@ aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle 
 </div>
   </nav>
   <div class="container mx-auto py-5 px-4 max-w-md">
+  <div class="bg-red-700 shadow-lg rounded-lg w-full p-3 text-white">
+    <h5>Site Under Construction 🚧</h5>
+    <p>Some links might be broken and some of the formatting off, but I promise: it will be worth the pain.</p>
+  </div>
   <main class="content"></main>
   </div>
 `
@@ -76,13 +81,13 @@ const getProperties = (style, attr = "href") => {
 
 
 const rehypeApplyTemplate = (options: ApplyTemplateOptions = {}) => (tree) => {
-	const { title = "", links = [] } = options
+	const { brand = "", title = "", links = [] } = options
 
 	// Add stylesheets
 	const styles = [...(options?.styles ?? []), ...DEFAULT_STYLES];
 	const scripts = [...(options?.scripts ?? []), ...DEFAULT_SCRIPTS];
 	const templateStr = (options?.template ?? DEFAULT_TEMPLATE)({
-		brand: title,
+		brand,
 		items: links.map(link => ({ label: _.capitalize(link), href: `/${link}` }))
 	});
 	const bodyChildren = [...tree.children];
@@ -97,7 +102,7 @@ const rehypeApplyTemplate = (options: ApplyTemplateOptions = {}) => (tree) => {
 		h("head", [...styles.map(style => (h("link", {
 			rel: "stylesheet",
 			type: "text/css", ...getProperties(style)
-		}))), ...DEFAULT_EXTRA_STYLES]),
+		}))), ...DEFAULT_EXTRA_STYLES, h("title", title)]),
 
 		// Body TODO: Wrap this in a template
 		h("body", template.children),

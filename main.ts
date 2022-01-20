@@ -86,7 +86,7 @@ export default class ObsidianExport extends Plugin {
 			const relOutFilePath = "static/" + fileName;
 			const outFilePath = outPath + relOutFilePath;
 			fs.writeFileSync(outFilePath, fileContents);
-			return relOutFilePath
+			return "/" + relOutFilePath
 		})
 
 		// Copy over the current theme
@@ -118,6 +118,7 @@ export default class ObsidianExport extends Plugin {
 			console.error(e)
 		}
 
+
 		// Parse the markdown, clean up the links, etc.
 		notes?.values?.forEach(async note => {
 			const slug = getSlug(note);
@@ -141,13 +142,13 @@ export default class ObsidianExport extends Plugin {
 					.use(remarkMermaid)
 					.use(remarkNumberedFootnoteLabels)
 					.use(remarkWikiLink, { aliasDivider: "|" })
-					.use(remarkDataview, { dv, page: note })
 					.use(remarkCite, {})
 					.use(remarkProcessCitations, { db: citationsDB })
 					.use(remarkButtons, {
 						plugin: this?.app?.plugins?.plugins?.buttons,
 						definitions: basePath + "/" + this.settings.buttonDefinitions
 					})
+					.use(remarkDataview, { dv, page: note })
 					// Convert to HAST
 					.use(remarkRehype, { allowDangerousHtml: true })
 					.use(rehypeKatex)
@@ -155,8 +156,9 @@ export default class ObsidianExport extends Plugin {
 					// .use(rehypeRaw)
 					.use(rehypeApplyTemplate, {
 						styles: relSnippetOutPaths,
-						title: this.settings.websiteTitle,
-						links: this.settings.navLinks
+						brand: this.settings.websiteTitle,
+						links: this.settings.navLinks,
+						title: note.file.name
 					})
 					.use(rehypeStringify, { allowDangerousHtml: true })
 					.process(data)
