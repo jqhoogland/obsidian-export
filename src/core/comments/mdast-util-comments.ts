@@ -1,19 +1,21 @@
 import { safe } from "mdast-util-to-markdown/lib/util/safe.js";
 
 export function toMarkdown(options = {}) {
+	// TODO: Add an option to convert to html comments
+
 	const unsafe = [
 		{
-			character: '=',
+			character: '%',
 			inConstruct: ['phrasing', 'label', 'reference']
-		},
+		}
 	]
 
 	function handler(node, _, context) {
-		const exit = context.enter('highlight')
+		const exit = context.enter('comments')
 
-		const nodeValue = safe(context, node.value, { before: '=', after: '=' })
+		const nodeValue = safe(context, node.value, { before: '%', after: '%' })
 
-		const value = `==${nodeValue}==`
+		const value = `%%${nodeValue}%%`
 
 		exit()
 
@@ -23,17 +25,17 @@ export function toMarkdown(options = {}) {
 	return {
 		unsafe: unsafe,
 		handlers: {
-			highlight: handler
+			comments: handler
 		}
 	}
 }
 
 
 export function fromMarkdown(options = {}) {
-	function enterHighlight(token) {
+	function enterComments(token) {
 		this.enter(
 			{
-				type: 'highlight',
+				type: 'comments',
 				value: null,
 				data: {
 					alias: null,
@@ -49,25 +51,25 @@ export function fromMarkdown(options = {}) {
 		return stack[stack.length - 1]
 	}
 
-	function exitHighlightAlias(token) {
+	function exitCommentsAlias(token) {
 		const alias = this.sliceSerialize(token)
 		const current = top(this.stack)
 		current.data.alias = alias
 	}
 
-	function exitHighlightTarget(token) {
+	function exitCommentsTarget(token) {
 		const target = this.sliceSerialize(token)
 		const current = top(this.stack)
 		current.value = target
 	}
 
-	function exitHighlight(token) {
-		const highlight = this.exit(token)
+	function exitComments(token) {
+		const comments = this.exit(token)
 
-		const value = highlight.value
+		const value = comments.value
 
-		highlight.data.hName = 'mark'
-		highlight.data.hChildren = [{
+		comments.data.hName = 'mark'
+		comments.data.hChildren = [{
 			type: 'text',
 			value
 		}]
@@ -75,12 +77,12 @@ export function fromMarkdown(options = {}) {
 
 	return {
 		enter: {
-			highlight: enterHighlight
+			comments: enterComments
 		},
 		exit: {
-			highlightTarget: exitHighlightTarget,
-			highlightAlias: exitHighlightAlias,
-			highlight: exitHighlight
+			commentsTarget: exitCommentsTarget,
+			commentsAlias: exitCommentsAlias,
+			comments: exitComments
 		}
 	}
 }

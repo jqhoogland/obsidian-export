@@ -30,7 +30,7 @@ external: https://www.random.org/
 
 ## How it works
 
-This plugin uses [remark](https://github.com/remarkjs/remark) under the hood to do the converting. It uses a set of plugins to recreate "Obsidian-flavored markdown":
+This plugin uses [remark](https://github.com/remarkjs/remark) under the hood to do the converting. It uses a set of plugins to recreate "Obsidian-flavored markdown", including:
 
 - [remark-gfm](https://github.com/remarkjs/remark-gfm)
 - [remark-frontmatter](https://github.com/remarkjs/remark-frontmatter)
@@ -71,7 +71,7 @@ Plus a few new modifications to do things like comments and embed wikilinks `![[
 		- [ ] Tags (`#abc`)
 		- [ ] Block ids (`^123456`)
 		- [x] Comments (`%% ... %%`). This plugin currently just ignores comments. Another option would be to convert to html comments.
-		- [ ] Highlighting (`==...==`)
+		- [x] Highlighting (`==...==`)
 - [ ] Plugins
 	- [ ] [Dataview](https://github.com/blacksmithgu/obsidian-dataview)
 		- [ ] Code blocks
