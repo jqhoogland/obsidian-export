@@ -1,7 +1,7 @@
 import { visit } from "unist-util-visit";
 import * as fs from "fs";
 import { u } from "unist-builder";
-import { InlineCode, Root } from "mdast";
+import { Link, Root } from "mdast";
 
 interface Button {
 	name: string,
@@ -13,6 +13,11 @@ interface ButtonsOptions {
 	plugin: any; // TODO: Fill in with a peer dep.
 	definitions: string // path to the file where button definitions are kept (unlike original plugin)
 }
+
+interface ButtonNode extends Link {
+	value?: string
+}
+
 
 const remarkButtons = (options: ButtonsOptions) => (tree: Root) => {
 	const plugin = options?.plugin;
@@ -36,7 +41,7 @@ const remarkButtons = (options: ButtonsOptions) => (tree: Root) => {
 	const buttonMatch = /```button\nname (.*)\ntype link\naction (.*)\n```\n\^button\-([\d\w]*)/g
 	const buttonsDefinitionsFile = String(fs.readFileSync(definitions))
 	const buttons: Button[] = [...buttonsDefinitionsFile.matchAll(buttonMatch)]
-		.map(([_, name, action, id]) => ({
+		.map(([_, name, action, id]: string[]) => ({
 			name,
 			action,
 			id: `button-${id}`
@@ -44,7 +49,8 @@ const remarkButtons = (options: ButtonsOptions) => (tree: Root) => {
 
 
 	// Fill in the button definitions
-	visit(tree, { type: "inlineCode", }, (node: InlineCode) => {
+	// @ts-ignore
+	visit(tree, { type: "inlineCode", }, (node: ButtonNode) => {
 			if (node?.value?.slice(0, 7) === "button-") {
 				// Find the matching button (or safely fall back to keeping the code block)
 				const button = buttons.find(_button => _button.id === node?.value)

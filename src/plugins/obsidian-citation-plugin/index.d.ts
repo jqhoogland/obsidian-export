@@ -5,14 +5,14 @@
  * It is *not* complete!
  */
 
-type CitationDate = number[]
+export type CitationDate = number[]
 
-interface CitationDateParts {
+export interface CitationDateParts {
 	"date-parts"?: CitationDate[];
 	raw: string
 }
 
-interface CitationName  {
+export interface CitationName {
 	family?: string;
 	given?: string;
 	"non-dropping-participle"?: string;
@@ -25,5 +25,7 @@ export interface CitationCSLJSON {
 	type: string,
 	title: string,
 	author: CitationName[],
-	accessed?: CitationDateParts
-};
+	accessed?: CitationDateParts,
+	issued?: CitationDateParts,
+	URL?: string
+}

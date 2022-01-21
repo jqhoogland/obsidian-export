@@ -1,12 +1,19 @@
 import { visit } from "unist-util-visit";
 import { getUrl, parseUrl } from "../../../utils";
+import { Element, Root } from "hast";
+import { DataviewAPI } from "obsidian-dataview";
 
-const rehypeFixObsidianLinks = (options = {}) => (tree) => {
+interface FixObsidianLinksOptions {
+	dv?: DataviewAPI
+}
 
+const rehypeFixObsidianLinks = (options: FixObsidianLinksOptions = {}) => (tree: Root) => {
 	const dv = options?.dv
 
-	visit(tree, { tagName: "a" }, (node, index, parent) => {
-		const href = node?.properties?.href;
+	// @ts-ignore
+	visit(tree, { tagName: "a" }, (node: Element) => {
+		// @ts-ignore
+		const href: string = node?.properties?.href;
 		if (href?.[0] === "#" && href?.slice(0, 7) !== "#/page/") return node;
 
 		const [oldUrl, id = ""] = parseUrl(href).split("#");
@@ -15,6 +22,7 @@ const rehypeFixObsidianLinks = (options = {}) => (tree) => {
 			return node
 		}
 
+		// @ts-ignore
 		const target = dv.page(oldUrl);
 		const newUrl = getUrl(target);
 

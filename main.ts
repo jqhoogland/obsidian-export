@@ -9,7 +9,6 @@ import remarkRehype from "remark-rehype";
 import remarkFrontmatter from "remark-frontmatter";
 import { remarkMermaid } from "remark-mermaidjs";
 import remarkMath from "remark-math";
-import remarkWikiLink from "remark-wiki-link";
 import remarkNumberedFootnoteLabels from "remark-numbered-footnote-labels";
 import { removeComments } from "./src/core/comments/comments";
 import remarkDataview from "./src/plugins/obsidian-dataview/remarkDataview";
@@ -23,7 +22,10 @@ import remarkButtons from "./src/plugins/buttons/remarkButtons";
 import rehypeKatex from "rehype-katex";
 import { remarkHighlight } from "./src/core/highlight/remarkHighlight";
 import { CitationCSLJSON } from "./src/plugins/obsidian-citation-plugin";
+import { DVResult } from "./src/plugins/obsidian-dataview/types";
 
+// @ts-ignore
+import remarkWikiLink from "remark-wiki-link";
 
 interface ObsidianExportSettings {
 	outPath: string;
@@ -86,7 +88,8 @@ export default class ObsidianExport extends Plugin {
 	 * @return a list of paths to each snippet in the exported assets folder (relative to `outPath`)
 	 */
 	exportSnippets(basePath: string, outPath: string, staticPathRel: string): string[] {
-		const csscache: Map<string, string> = this.app.customCss.csscache;
+		// @ts-ignore
+		const csscache: Map<string, string> = this.app?.customCss?.csscache;
 
 		return [...csscache].map(([filePathRel, fileContents]) => {
 			// Get the snippet's name
@@ -117,7 +120,8 @@ export default class ObsidianExport extends Plugin {
 	 * @return the path to the theme .css file in the exported assets folder (relative to `outPath`)
 	 */
 	exportTheme(basePath: string, outPath: string, staticPathRel: string): string {
-		const theme = app.vault.config.cssTheme;
+		// @ts-ignore
+		const theme = this.app.vault.config.cssTheme;
 		const themePath = `${basePath}/.obsidian/.obsidian/themes/${theme}.css`;
 		const outFilePathRel = `${staticPathRel}/${theme}.css`;
 		const outFilePath = outPath + outFilePathRel;
@@ -142,7 +146,7 @@ export default class ObsidianExport extends Plugin {
 	 * @param srcPaths: paths to additional css files to copy over (relative to `basePath`)
 	 * @return the path to the theme .css file in the exported assets folder (relative to `outPath`)
 	 */
-	exportCSSOther(basePath: string, outPath, staticPathRel: string, srcPaths: string[]): string[] {
+	exportCSSOther(basePath: string, outPath: string, staticPathRel: string, srcPaths: string[]): string[] {
 		return srcPaths.map(srcPath => {
 			const outFilePathRel = `${staticPathRel}/${srcPath}`
 			const outFilePath = outPath + outFilePathRel
@@ -178,11 +182,12 @@ export default class ObsidianExport extends Plugin {
 	/**
 	 *
 	 */
-	loadCitations(basePath): CitationCSLJSON[] {
+	loadCitations(basePath: string): CitationCSLJSON[] {
+		// @ts-ignore
 		const citationsPlugin = this.app.plugins.plugins?.["obsidian-citation-plugin"]
 		let citations = []
 
-		if (!!citationsPlugin) {
+		if (citationsPlugin) {
 
 			const citationExportRelPath = citationsPlugin?.settings?.citationExportPath;
 			const citationExportPath = basePath + "/" + citationExportRelPath;
@@ -205,9 +210,7 @@ export default class ObsidianExport extends Plugin {
 	 * Load a template (.html in mustache format)
 	 * https://www.npmjs.com/package/mustache
 	 */
-	function
-
-	loadTemplate(basePath: string, relPath: string = "template.html"): string | undefined {
+	loadTemplate(basePath: string, relPath = "template.html"): string | undefined {
 		try {
 			const template = String(fs.readFileSync(`${basePath}/${relPath}`))
 			return template
@@ -222,12 +225,13 @@ export default class ObsidianExport extends Plugin {
 		// This plugin uses the dataview API to retrieve published notes:
 		// https://blacksmithgu.github.io/obsidian-dataview/plugin/develop-against-dataview/
 		const dv = await getAPI(this.app)
-		const notes = await dv.pages().where(f => f.published === true)
+		const notes = await dv.pages().where((f: DVResult) => f.published === true)
 		// TODO: Let users customize `published` field in settings
 
 		console.log("[Obsidian Export]: Exporting...", notes)
 
 		// Determine where to put the compiled html
+		// @ts-ignore
 		const basePath = this.app.vault?.adapter?.basePath  // Absolute path to the vault
 		const outPath = basePath + "/" + this.settings.outPath + "/"  // Absolute path to the output folder
 		const staticPathRel = this.settings.staticPath // Relative path (from output folder) to assets folder
@@ -243,7 +247,7 @@ export default class ObsidianExport extends Plugin {
 		const citationsDB = await this.loadCitations(basePath)
 
 		// Copy over each published note.
-		const results = await Promise.all(notes?.values?.map(async note => {
+		const results = await Promise.all(notes?.values?.map(async (note: DVResult) => {
 			// Where to find the note & where to put it.
 			const title = note?.file?.name;
 			const slug = getSlug(note);
@@ -272,16 +276,19 @@ export default class ObsidianExport extends Plugin {
 						// TODO: Keep the `key` and do something useful with it.
 						.then(processDVInline));
 
+
+				// TODO: Figure out why the settings below are giving TS such a hard time.
 				// TODO: Bundle all these remark plugins into a `remarkOfm` ("Obsidian-flavored markdown")
 				const parsedData = String(await unified()
 					//
 					// MDAST
 					//
 					.use(remarkParse,)
-					// "Obsidiam-flavored markdown"
+					// "Obsidian-flavored markdown"
 					.use(remarkFrontmatter)
 					.use(remarkGfm)
 					.use(remarkMath) // In conjunction with `rehypeKatex` below.
+					// @ts-ignore
 					.use(remarkMermaid)
 					.use(remarkNumberedFootnoteLabels)
 					.use(remarkWikiLink, { aliasDivider: "|" })
@@ -289,18 +296,24 @@ export default class ObsidianExport extends Plugin {
 					// Obsidian plugins
 					.use(remarkCite, {}) // Exposes `cite` nodes.
 					.use(remarkProcessCitations, { db: citationsDB }) // Parse `cite` nodes with the references db.
-					.use(remarkButtons, {
+					// @ts-ignore
+					.use(remarkButtons, { // @ts-ignore
 						plugin: this?.app?.plugins?.plugins?.buttons,
 						definitions: basePath + "/" + this.settings.buttonDefinitions
 					})
+					// @ts-ignore
 					.use(remarkDataview, { dv, page: note })
 					//
 					// HAST
 					//
+					// @ts-ignore
 					.use(remarkRehype, { allowDangerousHtml: true })
+					// @ts-ignore
 					.use(rehypeKatex)
+					// @ts-ignore
 					.use(rehypeFixObsidianLinks, { dv }) // Wikilinks doesn't parse until *after* converting to html
 					// .use(rehypeRaw)
+					// @ts-ignore
 					.use(rehypeApplyTemplate, {
 						styles: cssPaths,
 						brand: this.settings.websiteTitle,

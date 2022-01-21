@@ -2,7 +2,7 @@
 
 [Obsidian Publish](https://obsidian.md/publish) is great but lacks support for many of the plugins we Obsidian addicts have grown accustomed to — in particular [Dataview](https://github.com/blacksmithgu/obsidian-dataview), but also [Citations](https://github.com/hans/obsidian-citation-plugin), [Admonition](https://github.com/valentine195/obsidian-admonition), and more.
 
-This plugin lets you export your `md` notes to `html` static files for self-hosting (for example, with [Netlify](https://www.netlify.com/)). It supports a bunch of popular plugins.
+This plugin lets you export your `md` notes to `html` static files for self-hosting. It supports a bunch of popular plugins.
 
 For an example, check out [my personal website](https://jessehoogland.com/). (You can see it's still a little wonky, but it's getting there.)
 

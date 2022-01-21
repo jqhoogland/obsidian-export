@@ -4,14 +4,16 @@ import findIndex from "lodash/findIndex";
 import flatMap from "lodash/flatMap";
 import { brk, heading, link, list, paragraph, text } from "mdast-builder";
 import { u } from "unist-builder"
-import { CitationCSLJSON } from "./index";
+import { CitationCSLJSON, CitationName } from "./index";
+import { InlineCiteNode } from "@benrbray/mdast-util-cite";
+import { Root } from "mdast";
 
-const renderName = ({ family, given, literal = false }) => {
-	if (literal) return literal;
+const renderName = ({ family, given, literal }: CitationName) => {
+	if (!!literal) return literal;
 	return `${given.split(" ").map(name => `${name?.[0]}.`).join(" ")} ${family}`;
 };
 
-const renderAuthors = (authors) => {
+const renderAuthors = (authors: CitationName[]) => {
 	if (!authors?.length || authors.length === 0) {
 		return "";
 	}
@@ -27,7 +29,7 @@ const renderAuthors = (authors) => {
 	return `${renderName(authors[0])} et al`;
 };
 
-const renderCitation = (citation) => {
+const renderCitation = (citation: CitationCSLJSON) => {
 	if (!citation) return text("")
 
 	const authors = citation?.author ? renderAuthors(citation?.author) : "";
@@ -36,7 +38,7 @@ const renderCitation = (citation) => {
 	return [
 		text(`${authors && authors + ". "}${citation?.title} ${year ? `(${year})` : ""}`),
 		link(`#citation-${citation?.id}`, "↩"),
-		...(citation?.url ? [link(citation?.URL, "🔗")] : [])
+		...(citation?.URL ? [link(citation?.URL, "🔗")] : [])
 	]
 
 };
@@ -46,13 +48,15 @@ interface ProcessCitationsOptions {
 }
 
 
-const remarkProcessCitations = (options: ProcessCitationsOptions) => tree => {
-	const citations = []
+const remarkProcessCitations = (options: ProcessCitationsOptions) => (tree: Root) => {
+	const citations: CitationCSLJSON[] = []
 
 	const db = options.db ?? []
-	visit(tree, { type: "cite" }, (node, _, parent) => {
-		const _citations = node?.data?.citeItems.map(({ key }) => find(db, { "citation-key": key }));
-		const citationIndices = _citations.map(citation => {
+	// @ts-ignore
+	visit(tree, { type: "cite" }, (node: InlineCiteNode, _, parent: ParentNode) => {
+		// @ts-ignore
+		const _citations: CitationCSLJSON[] = node?.data?.citeItems.map(({ key }) => find(db, { "citation-key": key }));
+		const citationIndices = _citations.map((citation: CitationCSLJSON) => {
 			let i = findIndex(citations, { id: citation?.id });
 			if (i === -1 && !!citation) {
 				i = citations.length;
@@ -61,20 +65,22 @@ const remarkProcessCitations = (options: ProcessCitationsOptions) => tree => {
 			return i + 1
 		})
 
-		parent.children = flatMap(parent.children, child => {
+		// TODO: Should *not* be doing this in place. It's very gross.
+		// @ts-ignore
+		parent.children = flatMap(parent.children, (child: InlineCiteNode) => {
 			if (child.type === "cite" && child.value === node.value) {
 				if (_citations?.length > 0) {
 					// Map citations to the format `[1, 2, 3]` with the number representing the index of that citation.
 					return [
 						text("["),
 						...flatMap(_citations,
-							(citation, i) =>
+							(citation: CitationCSLJSON, i: number) =>
 								[
 									u("link", {
 										url: `#citation-${citation?.id}`,
 										data: { hProperties: { id: `ref-${citation?.id}` } }
 									}, [text(`${citationIndices?.[i]}`)]),
-									...(i < citation?.length - 1 ? [text(", ")] : [])
+									...(i < _citations?.length - 1 ? [text(", ")] : [])
 								],
 						),
 						text("]")
@@ -101,7 +107,7 @@ const remarkProcessCitations = (options: ProcessCitationsOptions) => tree => {
 		brk
 	] : [];
 
-
+	// @ts-ignore
 	tree.children = [...tree.children, ...referencesSection]
 
 

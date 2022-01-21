@@ -1,4 +1,7 @@
-const codes = {
+import { Code, Effects, State } from "micromark-util-types";
+import { RemarkHighlightOptions } from "./types";
+
+const codes: Record<string, Code> = {
 	horizontalTab: -2,
 	virtualSpace: -1,
 	nul: 0,
@@ -6,28 +9,29 @@ const codes = {
 	space: 32
 }
 
-function markdownLineEndingOrSpace(code) {
+function markdownLineEndingOrSpace(code: Code) {
 	return code < codes.nul || code === codes.space
 }
 
-function markdownLineEnding(code) {
+function markdownLineEnding(code: Code) {
 	return code < codes.horizontalTab
 }
 
-function highlightSyntax(options = {}) {
+
+function highlightSyntax(options: RemarkHighlightOptions = {}) {
 	// "=" (default) is Obsidian-style; "^" is Roam-style
 	const marker = options?.marker?.length === 1 ? options?.marker : "="
 	const fence = marker.repeat(2)
 
-	function tokenize(effects, ok, nok) {
-		let data
+	function tokenize(effects: Effects, ok: State, nok: State) {
+		let data: boolean
 
 		let startMarkerCursor = 0
 		let endMarkerCursor = 0
 
 		return start
 
-		function start(code) {
+		function start(code: Code) {
 			if (code !== fence.charCodeAt(startMarkerCursor)) return nok(code)
 
 			effects.enter('highlight')
@@ -36,7 +40,7 @@ function highlightSyntax(options = {}) {
 			return consumeStart(code)
 		}
 
-		function consumeStart(code) {
+		function consumeStart(code: Code) {
 			if (startMarkerCursor === fence.length) {
 				effects.exit('highlightMarker')
 				return consumeData(code)
@@ -52,7 +56,7 @@ function highlightSyntax(options = {}) {
 			return consumeStart
 		}
 
-		function consumeData(code) {
+		function consumeData(code: Code) {
 			if (markdownLineEnding(code) || code === codes.eof) {
 				return nok(code)
 			}
@@ -62,7 +66,7 @@ function highlightSyntax(options = {}) {
 			return consumeTarget(code)
 		}
 
-		function consumeTarget(code) {
+		function consumeTarget(code: Code) {
 			if (code === fence.charCodeAt(endMarkerCursor)) {
 				if (!data) return nok(code)
 				effects.exit('highlightTarget')
@@ -84,7 +88,7 @@ function highlightSyntax(options = {}) {
 			return consumeTarget
 		}
 
-		function consumeEnd(code) {
+		function consumeEnd(code: Code) {
 			if (endMarkerCursor === fence.length) {
 				effects.exit('highlightMarker')
 				effects.exit('highlight')
@@ -105,6 +109,7 @@ function highlightSyntax(options = {}) {
 	const call = { tokenize: tokenize }
 
 	return {
+		// TODO: Make this compatible with `^` or other characters
 		text: { 61: call } // "=" or "equalsTo" (see micromark-util-symbol/codes)
 	}
 }

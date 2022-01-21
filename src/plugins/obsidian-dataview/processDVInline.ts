@@ -1,9 +1,9 @@
-export default async function processDVInline(str) {
-	let _str = await str.replace(/\(([\w\d]+)\:\:(.*)\)/, (_, key, value) => {
+export default async function processDVInline(str: string) {
+	let _str = await str.replace(/\(([\w\d]+)\:\:(.*)\)/, (_: string, key: string, value: string) => {
 		return `[${value}](${value} "${key}")`
 	})
 
-	_str = await _str.replace(/\[([\w\d]+)\:\:(.*)\]/, (_, key, value) => {
+	_str = await _str.replace(/\[([\w\d]+)\:\:(.*)\]/, (_: string, key: string, value: string) => {
 		return `[${key}: ${value}](${value} "${key}")`
 	})
 

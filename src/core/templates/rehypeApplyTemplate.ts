@@ -3,8 +3,10 @@ import { unified } from "unified";
 import { DEFAULT_EXTRA_STYLES, DEFAULT_SCRIPTS, DEFAULT_STYLES } from "./css";
 import rehypeStringify from "rehype-stringify";
 import Mustache from "mustache"
+import _ from "lodash";
+import { Root } from "hast";
 
-interface NavItem {
+type NavItem = string | {
 	label: string,
 	href: string
 }
@@ -18,7 +20,7 @@ interface ApplyTemplateOptions {
 	template: string // should be a valid html + mustache template.
 }
 
-const getProperties = (style, attr = "href") => {
+const getProperties = (style: string | Record<string, string>, attr = "href") => {
 	if (typeof style === "string") return { [attr]: style };
 	return style
 }
@@ -40,7 +42,7 @@ const DEFAULT_TEMPLATE = `
 </html>
 `
 
-export default function rehypeApplyTemplate(_options) {
+export default function rehypeApplyTemplate(_options: ApplyTemplateOptions) {
 	const processorSettings = /** @type {Options} */ (this.data('settings'))
 	const options = Object.assign({}, processorSettings, _options)
 
@@ -49,14 +51,16 @@ export default function rehypeApplyTemplate(_options) {
 	/**
 	 * @type {import('unified').CompilerFunction<Node, string>}
 	 */
-	function compiler(tree) {
+	function compiler(tree: Root) {
 		const { brand = "", title = "", links = [], template = DEFAULT_TEMPLATE } = options
 		const styles = [...(options?.styles ?? []), ...DEFAULT_STYLES];
 		const scripts = [...(options?.scripts ?? []), ...DEFAULT_SCRIPTS];
 
 		const head = unified()
+			// @ts-ignore
 			.use(rehypeStringify, { allowDangerousHtml: true, fragment: true })
 			.stringify(
+				// @ts-ignore
 				h("head", [...styles.map(style => (h("link", {
 					rel: "stylesheet",
 					type: "text/css", ...getProperties(style)
@@ -64,21 +68,23 @@ export default function rehypeApplyTemplate(_options) {
 			)
 
 		const main = unified()
+			// @ts-ignore
 			.use(rehypeStringify, { allowDangerousHtml: true, fragment: true })
+			// @ts-ignore
 			.stringify(h("main", tree.children))
 
 		const footer = unified()
+			// @ts-ignore
 			.use(rehypeStringify, { allowDangerousHtml: true, fragment: true })
+			// @ts-ignore
 			.stringify(h("footer", scripts.map(script => (h("script", { ...getProperties(script, "src") })))))
 
-		Mustache.escape = function (text) {
-			return text;
-		};
+		Mustache.escape = (text) => text;
 
 		// TODO: Add support for Table of Contents, References, and Footnotes.
 		return String(Mustache.render(template, {
 			nav: {
-				items: links.map(slug => ({ label: _.capitalize(slug.replace("/", "")), href: `/${slug}` })),
+				items: links.map((slug: string) => ({ label: _.capitalize(slug.replace("/", "")), href: `/${slug}` })),
 				brand
 			}, head, main, footer
 		}))

@@ -1,5 +1,6 @@
 import _ from "lodash"
 import * as fs from "fs";
+import { DVResult } from "./src/plugins/obsidian-dataview/types";
 
 
 /**
@@ -14,7 +15,7 @@ import * as fs from "fs";
  *
  * @param f
  */
-export const getSlug = (f) => {
+export const getSlug = (f: DVResult) => {
 	if (f?.slug && Array.isArray(f?.slug) && f?.slug?.length > 0) {
 		return f?.slug[0]
 	} else if (f?.slug && typeof f?.slug === "string") {
@@ -30,7 +31,7 @@ export const getSlug = (f) => {
  * This does the opposite.
  */
 
-export const parseUrl = (url) => {
+export const parseUrl = (url: string) => {
 	// We don't have to worry about capitalization nor path because dataview can handle the rest.
 	let newUrl = url
 
@@ -47,7 +48,7 @@ export const parseUrl = (url) => {
  * Otherwise, looks for `metadata.external` and uses that, or returns `null`
  * @param f
  */
-export const getUrl = (f) => {
+export const getUrl = (f: DVResult) => {
 	if (f?.published) {
 		return getSlug(f)
 	} else if (f?.external) {
@@ -62,7 +63,7 @@ export const getUrl = (f) => {
  *
  * @param slug
  */
-export const createPathToSlug = async (rootDir, slug) => {
+export const createPathToSlug = async (rootDir: string, slug: string) => {
 	const path = slug.split('/');
 
 	const parentDir = rootDir

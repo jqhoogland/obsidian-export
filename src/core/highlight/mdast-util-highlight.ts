@@ -1,19 +1,27 @@
 import { safe } from "mdast-util-to-markdown/lib/util/safe.js";
+import { Element } from "hast";
+import { Context } from "mdast-util-to-markdown";
+import { Token } from "micromark-util-types";
+import { RemarkHighlightOptions } from "./types";
 
-export function toMarkdown(options = {}) {
+export function toMarkdown(options: RemarkHighlightOptions = {}) {
+	const marker = options?.marker?.length === 1 ? options?.marker : "="
+	const fence = marker.repeat(2)
+
 	const unsafe = [
 		{
-			character: '=',
+			character: marker,
 			inConstruct: ['phrasing', 'label', 'reference']
 		},
 	]
 
-	function handler(node, _, context) {
+	function handler(node: Element, _: any, context: Context) {
 		const exit = context.enter('highlight')
 
-		const nodeValue = safe(context, node.value, { before: '=', after: '=' })
+		// @ts-ignore
+		const nodeValue = safe(context, node.value, { before: marker, after: marker })
 
-		const value = `==${nodeValue}==`
+		const value = `${fence}${nodeValue}${fence}`
 
 		exit()
 
@@ -29,8 +37,8 @@ export function toMarkdown(options = {}) {
 }
 
 
-export function fromMarkdown(options = {}) {
-	function enterHighlight(token) {
+export function fromMarkdown(options: RemarkHighlightOptions) {
+	function enterHighlight(token: Token) {
 		this.enter(
 			{
 				type: 'highlight',
@@ -45,23 +53,23 @@ export function fromMarkdown(options = {}) {
 		)
 	}
 
-	function top(stack) {
+	function top(stack: any[]) {
 		return stack[stack.length - 1]
 	}
 
-	function exitHighlightAlias(token) {
+	function exitHighlightAlias(token: Token) {
 		const alias = this.sliceSerialize(token)
 		const current = top(this.stack)
 		current.data.alias = alias
 	}
 
-	function exitHighlightTarget(token) {
+	function exitHighlightTarget(token: Token) {
 		const target = this.sliceSerialize(token)
 		const current = top(this.stack)
 		current.value = target
 	}
 
-	function exitHighlight(token) {
+	function exitHighlight(token: Token) {
 		const highlight = this.exit(token)
 
 		const value = highlight.value

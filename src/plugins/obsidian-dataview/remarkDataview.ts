@@ -1,12 +1,23 @@
 import { visit } from "unist-util-visit";
 import { Code, Root } from "mdast";
-import { DataviewApi } from "obsidian-dataview/lib/api/plugin-api";
 import { heading, list, listItem, table, tableCell, tableRow } from "mdast-builder";
 import { u } from "unist-builder";
 import { unified } from "unified";
 import rehypeParse from "rehype-parse";
 import { map } from "unist-util-map";
-import { LiteralValue } from "obsidian-dataview";
+import { DataviewAPI, LiteralValue } from "obsidian-dataview";
+import { DVResult } from "./types";
+import { Properties } from "hast";
+
+interface DataviewAPIExtended extends DataviewAPI {
+	el: (tag: string, text: string) => Node,
+	header: (level: number, text: string) => Node,
+	span: (text: string) => Node,
+	paragraph: (text: string) => Node,
+	list: (elements: string[]) => Node,
+	table: (headers: string[], elements: string[][]) => Node
+
+}
 
 /**
  * A class I like to use with CustomJS.
@@ -14,22 +25,23 @@ import { LiteralValue } from "obsidian-dataview";
  * For now, I need to keep it in scope for the `window.eval` call below
  */
 class Cards {
-	getParentName(f) {
+	getParentName(f: DVResult) {
 		return f?.parent?.type === "file"
 			? f?.parent?.path
 			: f?.parent?.values?.[0]?.values?.[0];
 	}
 
-	getIcon(dv, f) {
+	getIcon(dv: DataviewAPIExtended, f: DVResult) {
 		const parentName = this.getParentName(f)
 
+		// @ts-ignore
 		const parent = dv.pages()
-			.where(_f => _f.file.name === parentName)?.values?.[0];
+			.where((_f: DVResult) => _f.file.name === parentName)?.values?.[0];
 
 		return f?.icon ?? parent?.icon;
 	}
 
-	render(dv, f) {
+	render(dv: DataviewAPIExtended, f: DVResult) {
 		const icon = this.getIcon(dv, f);
 
 		return `
@@ -45,22 +57,22 @@ class Cards {
        `
 	}
 
-	dateToInt(str) {
+	dateToInt(str: string) {
 		return parseInt(str?.replace("-", ""));
 	}
 
-	matchFilters(f, filters) {
-		console.log(f?.tags)
+	matchFilters(f: DVResult, filters: Record<string, any>) {
 		const parentMatch = !filters?.parent || filters?.parent === this.getParentName(f);
 		const tagsMatch = !filters?.tags || f?.tags?.values?.includes(filters?.tags);  // include mongodb-like queries like $in and $all
 		return parentMatch && tagsMatch;
 	}
 
-	renderList(dv: DataviewApi, type, filters, order = "date") {
+	renderList(dv: DataviewAPIExtended, type: string, filters: Record<string, any>, order: "date" | "order" = "date") {
+		// @ts-ignore
 		const cards = dv.pages()
-			.where((f) => !!f?.published == !!(filters?.published ?? true) && f?.type === type && this.matchFilters(f, filters))
-			.sort(f => order === "date" ? -this.dateToInt(f?.date?.path) : order === "order" ? f?.order : f?.file?.name)
-			.map(f => this.render(dv, f));
+			.where((f: DVResult) => !!f?.published == !!(filters?.published ?? true) && f?.type === type && this.matchFilters(f, filters))
+			.sort((f: DVResult) => order === "date" ? -this.dateToInt(f?.date?.path) : order === "order" ? f?.order : f?.file?.name)
+			.map((f: DVResult) => this.render(dv, f));
 		return dv.span(cards)
 
 	}
@@ -68,71 +80,87 @@ class Cards {
 
 const processor = unified().use(rehypeParse, { fragment: true }) // .use(rehypeRemark)
 
+interface CleanedNode extends Node {
+	data: any,
+	tagName: string,
+	properties: Properties
+}
+
 /**
  * Mock dv's rendering functions.
  * Instead of writing elements to the document, render as html strings.
  *
  * @param dv
  */
-const addCodeblockProcessors = dv => {
-	const clean = value => {
+const addCodeblockProcessors = (dv: DataviewAPIExtended): DataviewAPIExtended => {
+	const clean = (value: any) => {
 		if (typeof value === "string") {
 			const _res = processor.parse(`<span>${value}</span>`)
-			const res = map(_res, (node) => {
-				return Object.assign({}, node, {
+			// @ts-ignore
+			const res = map(_res, (node: CleanedNode) =>
+				Object.assign({}, node, {
+					// @ts-ignore
 					data: {
 						...node?.data,
 						hName: node.tagName,
 						hProperties: node.properties
 					}
 				})
-			})
+			)
+			// @ts-ignore
 			return res.children ?? u("text", value)
 		}
 		return value
 	}
 
-	dv.el = (tag, text) => {
-		return u("paragraph", { hName: tag }, clean(text))
-	}
-	dv.header = (level, text) => {
-		return heading(level, clean(text))
-	}
-	dv.span = (text) => {
-		return u("text", { hName: "span" }, clean(text))
-	}
-	dv.paragraph = (text) => {
-		return u("paragraph", clean(text))
-	}
+	// @ts-ignore
+	dv.el = (tag: string, text: string) => u("paragraph", { hName: tag }, clean(text))
+
+	// @ts-ignore
+	dv.header = (level: number, text: string) => heading(level, clean(text))
+
+	// @ts-ignore
+	dv.span = (text: string) => u("text", { hName: "span" }, clean(text))
+
+	// @ts-ignore
+	dv.paragraph = (text: string) => u("paragraph", clean(text))
+
 	// dv.view = (path, input) => {}
-	dv.list = (elements) => {
-		return list("unordered", elements.map(el => listItem(clean(el))))
-	}
+
+	// @ts-ignore
+	dv.list = (elements: string[]) => list("unordered", elements.map(el => listItem(clean(el))))
+
 	// dv.taskList = (tasks, groupByFile) => {}
-	dv.table = (headers, elements) => {
-		return table("left", [tableRow(headers.map(header => tableCell(clean(header)))), elements.map(row => tableRow(row.map(cell => tableCell(clean(cell)))))])
-	}
+
+	// @ts-ignore
+	dv.table = (headers: string[], elements: string[][]) => table("left", [tableRow(headers.map(header => tableCell(clean(header)))), elements.map(row => tableRow(row.map(cell => tableCell(clean(cell)))))])
+
 	return dv
 }
 
 
 interface DataviewOptions {
-	dv?: DataviewApi,
+	dv?: DataviewAPI,
 	page?: Record<string, LiteralValue>
 }
 
 const remarkDataview = (options: DataviewOptions = {}) => (tree: Root) => {
-	const { dv: _dv, page } = options
+	const { dv: _dv } = options
 	if (!_dv) return tree
 
 	const dv = addCodeblockProcessors(_dv)
+
+	// @ts-ignore
 	window.dv = dv;
 
+	// @ts-ignore
 	visit(tree, { type: "code", lang: "dataviewjs" }, (node: Code) => {
 		const res = window.eval(node.value)
 
 		if (res) {
 			node.type = res.type
+
+			// @ts-ignore
 			node.children = res?.children
 			delete node.value
 			delete node.lang

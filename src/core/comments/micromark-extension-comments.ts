@@ -1,3 +1,6 @@
+// @ts-nocheck
+// Under development (not in use)
+
 const codes = {
 	horizontalTab: -2,
 	virtualSpace: -1,

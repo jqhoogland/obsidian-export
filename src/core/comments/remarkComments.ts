@@ -1,3 +1,6 @@
+// @ts-nocheck
+// Under development (not in use)
+
 import { commentsSyntax } from './micromark-extension-comments'
 import { fromMarkdown, toMarkdown } from './mdast-util-comments'
 

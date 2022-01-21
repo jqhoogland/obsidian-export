@@ -1,3 +1,6 @@
+// @ts-nocheck
+// Under development (not in use)
+
 import { safe } from "mdast-util-to-markdown/lib/util/safe.js";
 
 export function toMarkdown(options = {}) {
