@@ -26,6 +26,7 @@ import { DVResult } from "./src/plugins/obsidian-dataview/types";
 
 // @ts-ignore
 import remarkWikiLink from "remark-wiki-link";
+import loadCustomJS from "./src/plugins/customJS/customJS";
 
 interface ObsidianExportSettings {
 	outPath: string;
@@ -245,6 +246,10 @@ export default class ObsidianExport extends Plugin {
 
 		// Citations (must be in csl-json)
 		const citationsDB = await this.loadCitations(basePath)
+
+		// Load customJS into global scope
+		const customJS = loadCustomJS(basePath, app)
+		window.customJS = customJS
 
 		// Copy over each published note.
 		const results = await Promise.all(notes?.values?.map(async (note: DVResult) => {

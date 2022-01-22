@@ -85,8 +85,9 @@ Plus a few new modifications to do things like comments and embed wikilinks `![[
 
 - [Dataview](https://github.com/blacksmithgu/obsidian-dataview) (partial).
 	- You can use `dataviewjs` blocks and inline attributes. `dataview` blocks and inline blocks are still unsupported.
-- [Citations](https://github.com/hans/obsidian-citation-plugin) (fully).
+- [Citations](https://github.com/hans/obsidian-citation-plugin).
 - [Buttons](https://github.com/shabegom/buttons) (only for link buttons)
+- [CustomJS](https://github.com/samlewis0602/obsidian-custom-js)
 
 ---
 
@@ -119,5 +120,5 @@ Plus a few new modifications to do things like comments and embed wikilinks `![[
 	- [x] [Citations](https://github.com/hans/obsidian-citation-plugin)
 	- [x] [Buttons](https://github.com/shabegom/buttons) (only for link buttons)
 	- [ ] [Admonition](https://github.com/valentine195/obsidian-admonition)
-	- [ ] [CustomJS](https://github.com/samlewis0602/obsidian-custom-js)
+	- [x] [CustomJS](https://github.com/samlewis0602/obsidian-custom-js)
 	- [ ] [Breadcrumbs](https://github.com/SkepticMystic/breadcrumbs)	
